@@ -1,0 +1,16 @@
+:root {
+  --color-fondo: #120a24;
+  --color-panel: #1c1140;
+  --color-panel-claro: #251852;
+  --color-texto: #f5f1ff;
+  --color-texto-tenue: #b9aed6;
+  --color-acento: #ffd166;
+  --color-segmento-1: #ff6b6b;
+  --color-segmento-2: #4ecdc4;
+  --color-segmento-3: #ffd166;
+  --color-segmento-4: #a78bfa;
+  --color-texto-segmento: #1c1140;
+  --color-ticket: #fff8e7;
+  --radio-borde: 14px;
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+}

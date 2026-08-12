@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tómbola — demo de referencia</title>
+    <style>
+      :root {
+        --color-fondo: #120a24;
+        --color-panel: #1c1140;
+        --color-panel-claro: #251852;
+        --color-texto: #f5f1ff;
+        --color-texto-tenue: #b9aed6;
+        --color-acento: #ffd166;
+        --color-segmento-1: #ff6b6b;
+        --color-segmento-2: #4ecdc4;
+        --color-segmento-3: #ffd166;
+        --color-segmento-4: #a78bfa;
+        --color-texto-segmento: #1c1140;
+        --color-ticket: #fff8e7;
+        --radio-borde: 14px;
+        --sombra: 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at 50% -10%, var(--color-panel-claro), var(--color-fondo) 60%);
+        color: var(--color-texto);
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      }
+
+      button {
+        font-family: inherit;
+        cursor: pointer;
+      }
+
+      .app {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 20px 48px;
+      }
+
+      .cabecera {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .titulo {
+        background: transparent;
+        border: none;
+        color: var(--color-texto);
+        font-size: clamp(1.5rem, 4vw, 2.4rem);
+        font-weight: 700;
+        text-align: center;
+        width: 100%;
+        padding: 6px 12px;
+        border-radius: 10px;
+      }
+
+      .titulo:focus-visible,
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid var(--color-acento);
+        outline-offset: 2px;
+      }
+
+      .cuerpo {
+        display: flex;
+        gap: 28px;
+        align-items: flex-start;
+      }
+
+      .panel {
+        background: var(--color-panel);
+        border-radius: var(--radio-borde);
+        padding: 20px;
+        width: 380px;
+        flex-shrink: 0;
+        box-shadow: var(--sombra);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .panel label {
+        font-size: 0.85rem;
+        color: var(--color-texto-tenue);
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .panel textarea,
+      .panel input,
+      .panel select {
+        width: 100%;
+        background: var(--color-fondo);
+        color: var(--color-texto);
+        border: 1px solid var(--color-panel-claro);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+      }
+
+      .panel textarea {
+        min-height: 140px;
+        resize: vertical;
+        font-family: inherit;
+      }
+
+      .fila {
+        display: flex;
+        gap: 12px;
+      }
+
+      .fila > div {
+        flex: 1;
+      }
+
+      .aviso {
+        background: rgba(255, 209, 102, 0.15);
+        border: 1px solid var(--color-acento);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .aviso:not([hidden]) {
+        display: flex;
+      }
+
+      .aviso button {
+        background: var(--color-acento);
+        color: var(--color-panel);
+        border: none;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .boton-girar {
+        background: var(--color-acento);
+        color: var(--color-panel);
+        border: none;
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 1.05rem;
+        font-weight: 700;
+      }
+
+      .boton-girar:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .boton-silencio {
+        background: transparent;
+        border: 1px solid var(--color-panel-claro);
+        color: var(--color-texto);
+        border-radius: 10px;
+        padding: 8px;
+        font-size: 0.9rem;
+      }
+
+      .estado {
+        font-size: 0.85rem;
+        color: var(--color-texto-tenue);
+        margin: 0;
+      }
+
+      .panel h2 {
+        font-size: 0.95rem;
+        margin: 4px 0 0;
+        color: var(--color-texto-tenue);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .historial {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .historial li {
+        background: var(--color-fondo);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+      }
+
+      .escenario {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        padding-top: 20px;
+      }
+
+      .marco-ruleta {
+        position: relative;
+        width: min(600px, 90vw);
+        aspect-ratio: 1;
+      }
+
+      .marquesina {
+        position: absolute;
+        inset: 0;
+      }
+
+      .ampolleta {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--color-texto-tenue);
+        opacity: 0.35;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+        animation: destello 2.4s ease-in-out infinite;
+      }
+
+      @keyframes destello {
+        0%,
+        100% {
+          opacity: 0.25;
+          background: var(--color-texto-tenue);
+        }
+        50% {
+          opacity: 1;
+          background: var(--color-acento);
+          box-shadow: 0 0 8px var(--color-acento);
+        }
+      }
+
+      .marquesina.girando .ampolleta {
+        animation-duration: 0.5s;
+      }
+
+      .marquesina.ganador .ampolleta {
+        animation: none;
+        opacity: 1;
+        background: var(--color-acento);
+        box-shadow: 0 0 10px var(--color-acento);
+      }
+
+      #ruleta {
+        position: absolute;
+        inset: 6%;
+        width: 88%;
+        height: 88%;
+        border-radius: 50%;
+        box-shadow: var(--sombra);
+      }
+
+      .aguja {
+        position: absolute;
+        top: 2%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 26px solid var(--color-texto);
+        transform: translateX(-50%);
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+        z-index: 5;
+      }
+
+      .aguja.girando {
+        animation: vibrar 0.12s infinite;
+      }
+
+      @keyframes vibrar {
+        0%,
+        100% {
+          transform: translateX(-50%) rotate(0deg);
+        }
+        25% {
+          transform: translateX(-50%) rotate(-4deg);
+        }
+        75% {
+          transform: translateX(-50%) rotate(4deg);
+        }
+      }
+
+      .confeti {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 40;
+      }
+
+      .anuncio-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 2, 15, 0.7);
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 20px;
+      }
+
+      .anuncio-overlay:not([hidden]) {
+        display: flex;
+      }
+
+      .anuncio-ticket {
+        position: relative;
+        background: var(--color-ticket);
+        color: var(--color-panel);
+        border-radius: 18px;
+        padding: 36px 44px;
+        min-width: 280px;
+        max-width: 90vw;
+        text-align: center;
+        box-shadow: var(--sombra);
+        animation: rebote 0.5s ease-out;
+      }
+
+      .anuncio-ticket::before,
+      .anuncio-ticket::after {
+        content: '';
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        background: var(--color-fondo);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .anuncio-ticket::before {
+        left: -13px;
+      }
+
+      .anuncio-ticket::after {
+        right: -13px;
+      }
+
+      @keyframes rebote {
+        0% {
+          transform: scale(0.3) translateY(50px);
+          opacity: 0;
+        }
+        60% {
+          transform: scale(1.06) translateY(-8px);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .anuncio-puesto {
+        margin: 0 0 6px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--color-acento);
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .anuncio-nombre {
+        margin: 0 0 20px;
+        font-size: clamp(1.6rem, 5vw, 2.4rem);
+      }
+
+      .boton-cerrar {
+        background: var(--color-panel);
+        color: var(--color-ticket);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 600;
+      }
+
+      .sr-solo {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .ampolleta,
+        .aguja.girando,
+        .anuncio-ticket {
+          animation: none !important;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .cuerpo {
+          flex-direction: column;
+        }
+        .panel {
+          width: 100%;
+        }
+        .escenario {
+          padding-top: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="cabecera">
+        <input id="titulo" class="titulo" value="Sorteo de premios" aria-label="Título del sorteo" />
+      </header>
+
+      <main class="cuerpo">
+        <section class="panel" aria-label="Configuración del sorteo">
+          <div>
+            <label for="participantes">Participantes (uno por línea)</label>
+            <textarea
+              id="participantes"
+              spellcheck="false"
+              placeholder="Nombre, correo, teléfono"
+            ></textarea>
+          </div>
+
+          <p id="avisoDuplicados" class="aviso" hidden>
+            <span id="textoDuplicados"></span>
+            <button id="btnQuitarDuplicados" type="button">Quitar repetidos</button>
+          </p>
+
+          <div class="fila">
+            <div>
+              <label for="cantidad">Ganadores por ronda</label>
+              <input id="cantidad" type="number" min="1" max="99" value="1" />
+            </div>
+            <div>
+              <label for="modo">Modo</label>
+              <select id="modo">
+                <option value="lote">Ronda cerrada</option>
+                <option value="continuo">Uno a la vez</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="repeticion">Repetición</label>
+            <select id="repeticion">
+              <option value="sin">Sin repetir</option>
+              <option value="con">Con repetición</option>
+            </select>
+          </div>
+
+          <button id="btnGirar" class="boton-girar" type="button">Girar la ruleta</button>
+          <button id="btnSilencio" class="boton-silencio" type="button" aria-pressed="false">
+            🔊 Sonido
+          </button>
+          <p id="estadoPozo" class="estado"></p>
+
+          <h2>Historial</h2>
+          <ol id="historial" class="historial"></ol>
+        </section>
+
+        <section class="escenario" aria-label="Ruleta">
+          <div class="marco-ruleta">
+            <div id="marquesina" class="marquesina"></div>
+            <canvas id="ruleta" aria-hidden="true"></canvas>
+            <div id="aguja" class="aguja"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <canvas id="confeti" class="confeti"></canvas>
+
+    <div id="anuncioOverlay" class="anuncio-overlay" hidden>
+      <div class="anuncio-ticket" role="dialog" aria-modal="true" aria-labelledby="anuncioNombre">
+        <p class="anuncio-puesto" id="anuncioPuesto"></p>
+        <h2 class="anuncio-nombre" id="anuncioNombre"></h2>
+        <button id="btnCerrarAnuncio" class="boton-cerrar" type="button">Cerrar (Esc)</button>
+      </div>
+    </div>
+
+    <div id="vivoGanador" aria-live="polite" class="sr-solo"></div>
+
+    <script>
+      // ===================== Utilidades =====================
+
+      function generarId() {
+        return typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `p-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+      }
+
+      function recortar(texto, maxLargo) {
+        return texto.length > maxLargo ? `${texto.slice(0, maxLargo - 1)}…` : texto;
+      }
+
+      function normalizarAngulo(angulo) {
+        const dosPi = Math.PI * 2;
+        return ((angulo % dosPi) + dosPi) % dosPi;
+      }
+
+      function easeOutQuart(t) {
+        return 1 - Math.pow(1 - t, 4);
+      }
+
+      // ===================== Azar sin sesgo =====================
+
+      function azarCripto(n) {
+        if (n <= 0) throw new Error('n debe ser mayor a 0');
+        const maxUint32 = 0xffffffff;
+        const limite = Math.floor((maxUint32 + 1) / n) * n;
+        const buffer = new Uint32Array(1);
+        let valor;
+        do {
+          crypto.getRandomValues(buffer);
+          valor = buffer[0];
+        } while (valor >= limite);
+        return valor % n;
+      }
+
+      // ===================== Parseo de participantes =====================
+
+      const RE_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const RE_FONO = /^[+()\d][\d\s()+-]{5,}$/;
+
+      function normalizarNombre(nombre) {
+        return nombre
+          .normalize('NFD')
+          .replace(/[̀-ͯ]/g, '')
+          .toLowerCase()
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function dividirCampos(linea) {
+        const campos = [];
+        let actual = '';
+        let entreComillas = false;
+        for (const caracter of linea) {
+          if (caracter === '"') {
+            entreComillas = !entreComillas;
+            continue;
+          }
+          if (!entreComillas && /[,;\t]/.test(caracter)) {
+            campos.push(actual.trim());
+            actual = '';
+            continue;
+          }
+          actual += caracter;
+        }
+        campos.push(actual.trim());
+        if (campos.length === 1) {
+          const porEspacios = linea
+            .split(/\s{3,}/)
+            .map((campo) => campo.trim())
+            .filter(Boolean);
+          if (porEspacios.length > 1) return porEspacios;
+        }
+        return campos.filter((campo) => campo.length > 0);
+      }
+
+      function parseParticipantes(texto) {
+        const lineas = texto
+          .split(/\r?\n/)
+          .map((linea) => linea.trim())
+          .filter(Boolean);
+        const participantes = [];
+        const conteoPorClave = new Map();
+        for (const linea of lineas) {
+          const campos = dividirCampos(linea);
+          const nombre = campos[0] ?? linea;
+          let correo;
+          let fono;
+          for (const campo of campos.slice(1)) {
+            if (!correo && RE_CORREO.test(campo)) correo = campo;
+            else if (!fono && RE_FONO.test(campo)) fono = campo;
+          }
+          const clave = normalizarNombre(nombre);
+          conteoPorClave.set(clave, (conteoPorClave.get(clave) ?? 0) + 1);
+          participantes.push({ id: generarId(), nombre, correo, fono, tickets: 1, clave });
+        }
+        const duplicados = [...conteoPorClave.values()].filter((n) => n > 1).length;
+        return { participantes, duplicados };
+      }
+
+      function quitarDuplicados(participantes) {
+        const vistos = new Set();
+        const resultado = [];
+        for (const participante of participantes) {
+          if (vistos.has(participante.clave)) continue;
+          vistos.add(participante.clave);
+          resultado.push(participante);
+        }
+        return resultado;
+      }
+
+      // ===================== Motor de sorteo (estado puro) =====================
+
+      function pozoDe(participantes, idsExcluidos, sinRepetir) {
+        if (!sinRepetir) return participantes;
+        return participantes.filter((p) => !idsExcluidos.has(p.id));
+      }
+
+      function girar(pozo, azar) {
+        if (pozo.length === 0) return null;
+        const indice = azar(pozo.length);
+        return { ganador: pozo[indice], indice };
+      }
+
+      // ===================== Estado de la aplicación =====================
+
+      const textareaParticipantes = document.getElementById('participantes');
+      const avisoDuplicados = document.getElementById('avisoDuplicados');
+      const textoDuplicados = document.getElementById('textoDuplicados');
+      const btnQuitarDuplicados = document.getElementById('btnQuitarDuplicados');
+      const inputCantidad = document.getElementById('cantidad');
+      const selectModo = document.getElementById('modo');
+      const selectRepeticion = document.getElementById('repeticion');
+      const btnGirar = document.getElementById('btnGirar');
+      const btnSilencio = document.getElementById('btnSilencio');
+      const estadoPozo = document.getElementById('estadoPozo');
+      const listaHistorial = document.getElementById('historial');
+      const canvasRuleta = document.getElementById('ruleta');
+      const ctxRuleta = canvasRuleta.getContext('2d');
+      const marquesinaEl = document.getElementById('marquesina');
+      const agujaEl = document.getElementById('aguja');
+      const canvasConfeti = document.getElementById('confeti');
+      const ctxConfeti = canvasConfeti.getContext('2d');
+      const anuncioOverlay = document.getElementById('anuncioOverlay');
+      const anuncioPuesto = document.getElementById('anuncioPuesto');
+      const anuncioNombre = document.getElementById('anuncioNombre');
+      const btnCerrarAnuncio = document.getElementById('btnCerrarAnuncio');
+      const vivoGanador = document.getElementById('vivoGanador');
+
+      const prefiereMovimientoReducido = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+
+      let participantesActuales = [];
+      const idsExcluidos = new Set();
+      let ganadoresRondaActual = [];
+      let historialEntradas = [];
+      let anguloAcumulado = 0;
+      let girando = false;
+      let elementoFocoPrevio = null;
+
+      // Colores resueltos a valores reales para poder usarlos en <canvas>
+      // (deben coincidir con los custom properties del <style> de arriba).
+      const COLOR_TEXTO_SEGMENTO = '#1c1140';
+      const COLOR_PANEL = '#1c1140';
+      const COLOR_ACENTO = '#ffd166';
+      const TONOS = ['#ff6b6b', '#4ecdc4', '#ffd166', '#a78bfa'];
+
+      // ===================== Marquesina =====================
+
+      function crearMarquesina() {
+        const total = 40;
+        for (let i = 0; i < total; i += 1) {
+          const angulo = (i / total) * Math.PI * 2;
+          const radio = 49;
+          const x = 50 + radio * Math.sin(angulo);
+          const y = 50 - radio * Math.cos(angulo);
+          const bulbo = document.createElement('div');
+          bulbo.className = 'ampolleta';
+          bulbo.style.left = `${x}%`;
+          bulbo.style.top = `${y}%`;
+          bulbo.style.animationDelay = `${(i / total) * 2.4}s`;
+          marquesinaEl.appendChild(bulbo);
+        }
+      }
+
+      // ===================== Ruleta (canvas) =====================
+
+      function ajustarTamanoCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = canvasRuleta.getBoundingClientRect();
+        canvasRuleta.width = Math.max(1, Math.round(rect.width * dpr));
+        canvasRuleta.height = Math.max(1, Math.round(rect.height * dpr));
+      }
+
+      function colorParaSegmento(indice, n) {
+        let color = TONOS[indice % TONOS.length];
+        if (indice === n - 1 && n > 1 && color === TONOS[0]) {
+          color = TONOS[(indice + 1) % TONOS.length];
+        }
+        return color;
+      }
+
+      function centroSegmento(indice, n) {
+        return (indice + 0.5) * ((Math.PI * 2) / n);
+      }
+
+      function dibujarRuleta(pozo, anguloActual) {
+        const w = canvasRuleta.width;
+        const h = canvasRuleta.height;
+        const cx = w / 2;
+        const cy = h / 2;
+        const radio = Math.min(w, h) / 2 - 4;
+        ctxRuleta.clearRect(0, 0, w, h);
+
+        if (pozo.length === 0) {
+          ctxRuleta.beginPath();
+          ctxRuleta.arc(cx, cy, radio, 0, Math.PI * 2);
+          ctxRuleta.fillStyle = COLOR_PANEL;
+          ctxRuleta.fill();
+          ctxRuleta.fillStyle = '#b9aed6';
+          ctxRuleta.textAlign = 'center';
+          ctxRuleta.textBaseline = 'middle';
+          ctxRuleta.font = `${Math.round(radio * 0.09)}px system-ui, sans-serif`;
+          ctxRuleta.fillText('Agrega participantes', cx, cy);
+          return;
+        }
+
+        const n = pozo.length;
+
+        if (n > 200) {
+          dibujarModoDisco(cx, cy, radio, n, anguloActual);
+          return;
+        }
+
+        const anguloPorSegmento = (Math.PI * 2) / n;
+        const mostrarTexto = n <= 46;
+
+        ctxRuleta.save();
+        ctxRuleta.translate(cx, cy);
+        ctxRuleta.rotate(anguloActual);
+        for (let i = 0; i < n; i += 1) {
+          const inicio = i * anguloPorSegmento;
+          const fin = inicio + anguloPorSegmento;
+          ctxRuleta.beginPath();
+          ctxRuleta.moveTo(0, 0);
+          ctxRuleta.arc(0, 0, radio, inicio, fin);
+          ctxRuleta.closePath();
+          ctxRuleta.fillStyle = colorParaSegmento(i, n);
+          ctxRuleta.fill();
+          ctxRuleta.strokeStyle = 'rgba(18,10,36,0.25)';
+          ctxRuleta.stroke();
+
+          if (mostrarTexto) {
+            ctxRuleta.save();
+            ctxRuleta.rotate(inicio + anguloPorSegmento / 2);
+            ctxRuleta.textAlign = 'right';
+            ctxRuleta.textBaseline = 'middle';
+            ctxRuleta.fillStyle = COLOR_TEXTO_SEGMENTO;
+            ctxRuleta.font = `600 ${Math.round(radio * 0.045)}px system-ui, sans-serif`;
+            ctxRuleta.fillText(recortar(pozo[i].nombre, 20), radio - radio * 0.06, 0);
+            ctxRuleta.restore();
+          }
+        }
+        ctxRuleta.restore();
+      }
+
+      function dibujarModoDisco(cx, cy, radio, n, anguloActual) {
+        const anillos = 10;
+        ctxRuleta.save();
+        ctxRuleta.translate(cx, cy);
+        ctxRuleta.rotate(anguloActual);
+        for (let i = anillos; i > 0; i -= 1) {
+          ctxRuleta.beginPath();
+          ctxRuleta.arc(0, 0, radio * (i / anillos), 0, Math.PI * 2);
+          ctxRuleta.fillStyle = TONOS[i % TONOS.length];
+          ctxRuleta.fill();
+        }
+        ctxRuleta.restore();
+
+        ctxRuleta.beginPath();
+        ctxRuleta.arc(cx, cy, radio * 0.24, 0, Math.PI * 2);
+        ctxRuleta.fillStyle = COLOR_PANEL;
+        ctxRuleta.fill();
+        ctxRuleta.fillStyle = COLOR_ACENTO;
+        ctxRuleta.textAlign = 'center';
+        ctxRuleta.textBaseline = 'middle';
+        ctxRuleta.font = `700 ${Math.round(radio * 0.14)}px system-ui, sans-serif`;
+        ctxRuleta.fillText(String(n), cx, cy);
+      }
+
+      // ===================== Animación de giro =====================
+
+      function animarGiroHasta({ pozo, indiceGanador, duracionMs, vueltas, onTic, onFin }) {
+        const n = pozo.length;
+        const modoDisco = n > 200;
+        const anguloInicial = anguloAcumulado;
+        const a0 = normalizarAngulo(anguloInicial);
+
+        let anguloFinal;
+        if (modoDisco) {
+          anguloFinal = anguloInicial + vueltas * Math.PI * 2 + Math.random() * Math.PI * 2;
+        } else {
+          const anguloPorSegmento = (Math.PI * 2) / n;
+          const margen = anguloPorSegmento * 0.15;
+          const desvio = margen + Math.random() * (anguloPorSegmento - margen * 2);
+          const objetivoBase = normalizarAngulo(
+            -Math.PI / 2 - centroSegmento(indiceGanador, n) + desvio,
+          );
+          const delta = normalizarAngulo(objetivoBase - a0);
+          anguloFinal = anguloInicial + vueltas * Math.PI * 2 + delta;
+        }
+
+        const inicioTiempo = performance.now();
+        let ultimoAnguloParaTic = a0;
+
+        function paso(ahora) {
+          const t = Math.min(1, (ahora - inicioTiempo) / duracionMs);
+          const avance = easeOutQuart(t);
+          anguloAcumulado = anguloInicial + (anguloFinal - anguloInicial) * avance;
+          dibujarRuleta(pozo, anguloAcumulado);
+
+          if (!modoDisco && onTic) {
+            const anguloPorSegmento = (Math.PI * 2) / n;
+            const actual = normalizarAngulo(anguloAcumulado);
+            if (Math.floor(actual / anguloPorSegmento) !== Math.floor(ultimoAnguloParaTic / anguloPorSegmento)) {
+              const velocidad = t < 1 ? (1 - t) : 0;
+              onTic(velocidad);
+            }
+            ultimoAnguloParaTic = actual;
+          }
+
+          if (t < 1) {
+            requestAnimationFrame(paso);
+          } else {
+            anguloAcumulado = anguloFinal;
+            dibujarRuleta(pozo, anguloAcumulado);
+            onFin();
+          }
+        }
+
+        requestAnimationFrame(paso);
+      }
+
+      // ===================== Confeti =====================
+
+      function ajustarTamanoConfeti() {
+        canvasConfeti.width = window.innerWidth;
+        canvasConfeti.height = window.innerHeight;
+      }
+
+      function dispararConfeti() {
+        ajustarTamanoConfeti();
+        const piezas = [];
+        const coloresConfeti = TONOS.concat([COLOR_ACENTO]);
+        for (let i = 0; i < 170; i += 1) {
+          piezas.push({
+            x: Math.random() * canvasConfeti.width,
+            y: -20 - Math.random() * canvasConfeti.height * 0.3,
+            vx: (Math.random() - 0.5) * 4,
+            vy: 2 + Math.random() * 4,
+            rot: Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 0.3,
+            tam: 6 + Math.random() * 6,
+            color: coloresConfeti[Math.floor(Math.random() * coloresConfeti.length)],
+          });
+        }
+        const inicio = performance.now();
+        function paso(ahora) {
+          const transcurrido = ahora - inicio;
+          ctxConfeti.clearRect(0, 0, canvasConfeti.width, canvasConfeti.height);
+          let algunaVisible = false;
+          for (const p of piezas) {
+            p.vy += 0.06;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.rot += p.vrot;
+            if (p.y < canvasConfeti.height + 30) algunaVisible = true;
+            ctxConfeti.save();
+            ctxConfeti.translate(p.x, p.y);
+            ctxConfeti.rotate(p.rot);
+            ctxConfeti.fillStyle = p.color;
+            ctxConfeti.fillRect(-p.tam / 2, -p.tam / 4, p.tam, p.tam / 2);
+            ctxConfeti.restore();
+          }
+          if (algunaVisible && transcurrido < 4000) {
+            requestAnimationFrame(paso);
+          } else {
+            ctxConfeti.clearRect(0, 0, canvasConfeti.width, canvasConfeti.height);
+          }
+        }
+        requestAnimationFrame(paso);
+      }
+
+      // ===================== Audio sintetizado =====================
+
+      let contextoAudio = null;
+      let nodoGanancia = null;
+      let silenciado = false;
+      let ultimoTic = 0;
+
+      function obtenerContextoAudio() {
+        if (!contextoAudio) {
+          contextoAudio = new AudioContext();
+          nodoGanancia = contextoAudio.createGain();
+          nodoGanancia.gain.value = silenciado ? 0 : 1;
+          nodoGanancia.connect(contextoAudio.destination);
+        }
+        if (contextoAudio.state === 'suspended') contextoAudio.resume();
+        return contextoAudio;
+      }
+
+      function tic(velocidad) {
+        const ahora = performance.now();
+        if (ahora - ultimoTic < 24) return;
+        ultimoTic = ahora;
+        const ctx = obtenerContextoAudio();
+        const frecuencia = 300 + velocidad * 600;
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = frecuencia;
+        const env = ctx.createGain();
+        env.gain.setValueAtTime(0.22, ctx.currentTime);
+        env.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
+        osc.connect(env).connect(nodoGanancia);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.06);
+      }
+
+      function ruidoDeGiro(duracionSeg) {
+        const ctx = obtenerContextoAudio();
+        const bufferSize = Math.max(1, Math.floor(ctx.sampleRate * duracionSeg));
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const datos = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i += 1) datos[i] = Math.random() * 2 - 1;
+        const fuente = ctx.createBufferSource();
+        fuente.buffer = buffer;
+        const filtro = ctx.createBiquadFilter();
+        filtro.type = 'bandpass';
+        filtro.Q.value = 1;
+        filtro.frequency.setValueAtTime(1500, ctx.currentTime);
+        filtro.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + duracionSeg);
+        const env = ctx.createGain();
+        env.gain.value = 0.14;
+        fuente.connect(filtro).connect(env).connect(nodoGanancia);
+        fuente.start();
+        fuente.stop(ctx.currentTime + duracionSeg);
+      }
+
+      function sonidoGanador() {
+        const ctx = obtenerContextoAudio();
+        const base = 523.25; // do5
+        const semitonos = [0, 2, 4, 5, 7, 9, 11];
+        semitonos.forEach((s, i) => {
+          const freq = base * Math.pow(2, s / 12);
+          const inicio = ctx.currentTime + i * 0.09;
+          const osc = ctx.createOscillator();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          const env = ctx.createGain();
+          env.gain.setValueAtTime(0, inicio);
+          env.gain.linearRampToValueAtTime(0.2, inicio + 0.02);
+          env.gain.exponentialRampToValueAtTime(0.0001, inicio + 0.3);
+          osc.connect(env).connect(nodoGanancia);
+          osc.start(inicio);
+          osc.stop(inicio + 0.32);
+        });
+
+        const golpe = ctx.createOscillator();
+        golpe.type = 'sine';
+        golpe.frequency.value = 80;
+        const envGolpe = ctx.createGain();
+        envGolpe.gain.setValueAtTime(0.3, ctx.currentTime);
+        envGolpe.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+        golpe.connect(envGolpe).connect(nodoGanancia);
+        golpe.start();
+        golpe.stop(ctx.currentTime + 0.4);
+      }
+
+      function alternarSilencio() {
+        obtenerContextoAudio();
+        silenciado = !silenciado;
+        if (nodoGanancia) nodoGanancia.gain.value = silenciado ? 0 : 1;
+        btnSilencio.textContent = silenciado ? '🔇 Silencio' : '🔊 Sonido';
+        btnSilencio.setAttribute('aria-pressed', String(silenciado));
+      }
+
+      // ===================== Anuncio de ganador =====================
+
+      function manejarTeclaAnuncio(evento) {
+        if (evento.key === 'Escape') {
+          cerrarAnuncio();
+          return;
+        }
+        if (evento.key === 'Tab') {
+          evento.preventDefault();
+          btnCerrarAnuncio.focus();
+        }
+      }
+
+      function mostrarAnuncio(ganador, puestoTexto) {
+        anuncioNombre.textContent = ganador.nombre;
+        anuncioPuesto.textContent = puestoTexto;
+        anuncioOverlay.hidden = false;
+        vivoGanador.textContent = `Ganó ${ganador.nombre}`;
+        elementoFocoPrevio = document.activeElement;
+        btnCerrarAnuncio.focus();
+        document.addEventListener('keydown', manejarTeclaAnuncio);
+      }
+
+      function cerrarAnuncio() {
+        anuncioOverlay.hidden = true;
+        document.removeEventListener('keydown', manejarTeclaAnuncio);
+        if (elementoFocoPrevio) elementoFocoPrevio.focus();
+      }
+
+      btnCerrarAnuncio.addEventListener('click', cerrarAnuncio);
+
+      // ===================== Cableado de la app =====================
+
+      function actualizarPozoYRuleta() {
+        const sinRepetir = selectRepeticion.value === 'sin';
+        const pozo = pozoDe(participantesActuales, idsExcluidos, sinRepetir);
+        dibujarRuleta(pozo, anguloAcumulado);
+        btnGirar.disabled = pozo.length === 0 || girando;
+        estadoPozo.textContent =
+          pozo.length === 0
+            ? 'No quedan participantes disponibles.'
+            : `${pozo.length} en el pozo`;
+        return pozo;
+      }
+
+      function calcularPuestoTexto() {
+        if (selectModo.value === 'lote') {
+          const puesto = ganadoresRondaActual.length;
+          const ordinales = { 1: '1er', 2: '2do', 3: '3er' };
+          const texto = ordinales[puesto] ?? `${puesto}to`;
+          return `${texto} LUGAR`;
+        }
+        const numero = String(historialEntradas.length + 1).padStart(2, '0');
+        return `GANADOR ${numero}`;
+      }
+
+      function renderizarHistorial() {
+        listaHistorial.innerHTML = '';
+        for (const entrada of historialEntradas) {
+          const li = document.createElement('li');
+          li.textContent = `${entrada.puestoTexto} — ${entrada.ganador.nombre}`;
+          listaHistorial.appendChild(li);
+        }
+      }
+
+      function evaluarCierreRonda(pozoRestante) {
+        if (selectModo.value !== 'lote') return;
+        const cantidad = Number(inputCantidad.value) || 1;
+        if (ganadoresRondaActual.length >= cantidad) {
+          estadoPozo.textContent = 'Ronda cerrada. Presiona "Girar la ruleta" para abrir una nueva.';
+          ganadoresRondaActual = [];
+        } else if (pozoRestante.length === 0) {
+          estadoPozo.textContent = 'La ronda terminó antes: se acabaron los participantes.';
+          ganadoresRondaActual = [];
+        }
+      }
+
+      function empezarGiro() {
+        if (girando) return;
+        obtenerContextoAudio();
+        const sinRepetir = selectRepeticion.value === 'sin';
+        const pozo = pozoDe(participantesActuales, idsExcluidos, sinRepetir);
+        if (pozo.length === 0) return;
+
+        const resultado = girar(pozo, azarCripto);
+        if (!resultado) return;
+
+        girando = true;
+        btnGirar.disabled = true;
+        marquesinaEl.classList.add('girando');
+        agujaEl.classList.add('girando');
+
+        const duracionMs = prefiereMovimientoReducido ? 900 : 5200 + Math.random() * 900;
+        const vueltas = prefiereMovimientoReducido ? 1 : 5 + Math.floor(Math.random() * 3);
+        if (!prefiereMovimientoReducido) ruidoDeGiro(duracionMs / 1000);
+
+        animarGiroHasta({
+          pozo,
+          indiceGanador: resultado.indice,
+          duracionMs,
+          vueltas,
+          onTic: prefiereMovimientoReducido ? undefined : tic,
+          onFin: () => {
+            const ganador = resultado.ganador;
+            idsExcluidos.add(ganador.id);
+            ganadoresRondaActual.push(ganador);
+            const puestoTexto = calcularPuestoTexto();
+            historialEntradas.unshift({ ganador, puestoTexto, hora: new Date() });
+            renderizarHistorial();
+
+            girando = false;
+            marquesinaEl.classList.remove('girando');
+            agujaEl.classList.remove('girando');
+            marquesinaEl.classList.add('ganador');
+            setTimeout(() => marquesinaEl.classList.remove('ganador'), 1600);
+
+            sonidoGanador();
+            if (!prefiereMovimientoReducido) dispararConfeti();
+            mostrarAnuncio(ganador, puestoTexto);
+
+            const pozoRestante = actualizarPozoYRuleta();
+            evaluarCierreRonda(pozoRestante);
+          },
+        });
+      }
+
+      textareaParticipantes.addEventListener('input', () => {
+        const { participantes, duplicados } = parseParticipantes(textareaParticipantes.value);
+        participantesActuales = participantes;
+        if (duplicados > 0) {
+          avisoDuplicados.hidden = false;
+          textoDuplicados.textContent = `${duplicados} nombres repetidos.`;
+        } else {
+          avisoDuplicados.hidden = true;
+        }
+        actualizarPozoYRuleta();
+      });
+
+      btnQuitarDuplicados.addEventListener('click', () => {
+        participantesActuales = quitarDuplicados(participantesActuales);
+        avisoDuplicados.hidden = true;
+        actualizarPozoYRuleta();
+      });
+
+      selectRepeticion.addEventListener('change', actualizarPozoYRuleta);
+      btnGirar.addEventListener('click', empezarGiro);
+      btnSilencio.addEventListener('click', alternarSilencio);
+
+      window.addEventListener('resize', () => {
+        ajustarTamanoCanvas();
+        const sinRepetir = selectRepeticion.value === 'sin';
+        const pozo = pozoDe(participantesActuales, idsExcluidos, sinRepetir);
+        dibujarRuleta(pozo, anguloAcumulado);
+      });
+
+      document.addEventListener('keydown', (evento) => {
+        if (evento.code !== 'Space') return;
+        const activo = document.activeElement;
+        const enCampo =
+          activo && ['TEXTAREA', 'INPUT', 'SELECT'].includes(activo.tagName);
+        if (enCampo || !anuncioOverlay.hidden) return;
+        evento.preventDefault();
+        empezarGiro();
+      });
+
+      // ===================== Arranque =====================
+
+      const PARTICIPANTES_EJEMPLO = [
+        'Camila Riquelme, camila.r@correo.cl, +56 9 8123 4455',
+        'Matías Sandoval, matias.sandoval@correo.cl',
+        'Fernanda Aguilar',
+        'Diego Torres, diego.torres@correo.cl',
+        'Valentina Muñoz, +56 9 5544 3322',
+        'Camila Riquelme',
+        'Ignacio Rojas',
+        'Javiera Contreras, javiera.c@correo.cl',
+        'Benjamín Silva',
+        'Antonia Vergara, antonia.v@correo.cl, +56 9 1122 3344',
+        'Tomás Fuentes',
+        'Sofía Herrera',
+      ].join('\n');
+
+      crearMarquesina();
+      textareaParticipantes.value = PARTICIPANTES_EJEMPLO;
+      ajustarTamanoCanvas();
+      const { participantes: participantesIniciales, duplicados: duplicadosIniciales } =
+        parseParticipantes(PARTICIPANTES_EJEMPLO);
+      participantesActuales = participantesIniciales;
+      if (duplicadosIniciales > 0) {
+        avisoDuplicados.hidden = false;
+        textoDuplicados.textContent = `${duplicadosIniciales} nombres repetidos.`;
+      }
+      actualizarPozoYRuleta();
+    </script>
+  </body>
+</html>

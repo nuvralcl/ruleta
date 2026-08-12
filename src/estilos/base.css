@@ -1,0 +1,68 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% -10%, var(--color-panel-claro), var(--color-fondo) 60%);
+  color: var(--color-texto);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 20px 48px;
+}
+
+.cabecera {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.titulo {
+  background: transparent;
+  border: none;
+  color: var(--color-texto);
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  font-weight: 700;
+  text-align: center;
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+
+.titulo:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--color-acento);
+  outline-offset: 2px;
+}
+
+.cuerpo {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.sr-solo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@media (max-width: 720px) {
+  .cuerpo {
+    flex-direction: column;
+  }
+}

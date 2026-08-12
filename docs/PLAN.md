@@ -26,7 +26,7 @@ Leyenda: `⬜ pendiente` · `🟨 en curso` · `✅ listo`
 
 ---
 
-### ⬜ T0.2 — Portar la demo a la estructura modular
+### ✅ T0.2 — Portar la demo a la estructura modular
 
 **Objetivo:** la demo de un archivo pasa a módulos tipados, **sin cambiar nada
 de lo que se ve ni de lo que hace**. Es una refactorización, no un rediseño.
@@ -34,15 +34,15 @@ de lo que se ve ni de lo que hace**. Es una refactorización, no un rediseño.
 **Archivos:** todo `src/`, tomando `referencia/demo.html` como fuente.
 
 **Criterios de aceptación**
-- [ ] Los estilos quedan en `estilos/tokens.css` (todas las variables), `base.css`
+- [x] Los estilos quedan en `estilos/tokens.css` (todas las variables), `base.css`
       y `componentes.css`. Ningún color literal fuera de `tokens.css`.
-- [ ] `nucleo/motor.ts` y `nucleo/participantes.ts` no importan nada del DOM.
-- [ ] `nucleo/azar.ts` expone `type Azar = (n: number) => number` y una
+- [x] `nucleo/motor.ts` y `nucleo/participantes.ts` no importan nada del DOM.
+- [x] `nucleo/azar.ts` expone `type Azar = (n: number) => number` y una
       implementación con `crypto` sin sesgo de módulo.
-- [ ] `vista/ruleta.ts` recibe el canvas y el pozo; no lee el estado global.
-- [ ] `audio/sintetizador.ts` encapsula el `AudioContext` perezoso y el silencio.
-- [ ] La app se ve y suena idéntica a la demo. Verificar a ojo, lado a lado.
-- [ ] Cero `any`, cero variables globales sueltas.
+- [x] `vista/ruleta.ts` recibe el canvas y el pozo; no lee el estado global.
+- [x] `audio/sintetizador.ts` encapsula el `AudioContext` perezoso y el silencio.
+- [x] La app se ve y suena idéntica a la demo. Verificar a ojo, lado a lado.
+- [x] Cero `any`, cero variables globales sueltas.
 
 > **Prompt:** Ejecuta T0.2: porta referencia/demo.html a la estructura modular de CLAUDE.md sin cambiar comportamiento ni diseño. Es refactor puro: si encuentras bugs, anótalos en docs/PLAN.md bajo "Pendientes detectados" en vez de arreglarlos. Plan primero.
 
@@ -239,4 +239,10 @@ verificación del acta · borrado automático por retención.
 
 _Claude Code anota acá lo que encuentre y no corresponda arreglar en la tarea en curso._
 
-- 
+- (T0.2) `main.ts` arranca con una lista de participantes de ejemplo precargada
+  (la misma de `referencia/demo.html`), para portar el comportamiento tal cual.
+  Antes de ir a producción real habría que decidir si el organizador debe ver
+  la textarea vacía en el primer uso.
+- (T0.2) `nucleo/motor.ts` ya quedó con la forma de estado puro que pedía T1.1
+  (`crearRonda`, `girar(estado, azar, ahora)`, `pozoDe(estado)`) en vez de la
+  versión más simple de la demo, para no reescribirlo dos veces.

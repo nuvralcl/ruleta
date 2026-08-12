@@ -9,7 +9,81 @@
     <link rel="stylesheet" href="/src/estilos/componentes.css" />
   </head>
   <body>
-    <div id="app"></div>
+    <div class="app">
+      <header class="cabecera">
+        <input id="titulo" class="titulo" value="Sorteo de premios" aria-label="Título del sorteo" />
+      </header>
+
+      <main class="cuerpo">
+        <section class="panel" aria-label="Configuración del sorteo">
+          <div>
+            <label for="participantes">Participantes (uno por línea)</label>
+            <textarea
+              id="participantes"
+              spellcheck="false"
+              placeholder="Nombre, correo, teléfono"
+            ></textarea>
+          </div>
+
+          <p id="avisoDuplicados" class="aviso" hidden>
+            <span id="textoDuplicados"></span>
+            <button id="btnQuitarDuplicados" type="button">Quitar repetidos</button>
+          </p>
+
+          <div class="fila">
+            <div>
+              <label for="cantidad">Ganadores por ronda</label>
+              <input id="cantidad" type="number" min="1" max="99" value="1" />
+            </div>
+            <div>
+              <label for="modo">Modo</label>
+              <select id="modo">
+                <option value="lote">Ronda cerrada</option>
+                <option value="continuo">Uno a la vez</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="repeticion">Repetición</label>
+            <select id="repeticion">
+              <option value="sin">Sin repetir</option>
+              <option value="con">Con repetición</option>
+            </select>
+          </div>
+
+          <button id="btnGirar" class="boton-girar" type="button">Girar la ruleta</button>
+          <button id="btnSilencio" class="boton-silencio" type="button" aria-pressed="false">
+            🔊 Sonido
+          </button>
+          <p id="estadoPozo" class="estado"></p>
+
+          <h2>Historial</h2>
+          <ol id="historial" class="historial"></ol>
+        </section>
+
+        <section class="escenario" aria-label="Ruleta">
+          <div class="marco-ruleta">
+            <div id="marquesina" class="marquesina"></div>
+            <canvas id="ruleta" class="ruleta-canvas" aria-hidden="true"></canvas>
+            <div id="aguja" class="aguja"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <canvas id="confeti" class="confeti"></canvas>
+
+    <div id="anuncioOverlay" class="anuncio-overlay" hidden>
+      <div class="anuncio-ticket" role="dialog" aria-modal="true" aria-labelledby="anuncioNombre">
+        <p class="anuncio-puesto" id="anuncioPuesto"></p>
+        <h2 class="anuncio-nombre" id="anuncioNombre"></h2>
+        <button id="btnCerrarAnuncio" class="boton-cerrar" type="button">Cerrar (Esc)</button>
+      </div>
+    </div>
+
+    <div id="vivoGanador" aria-live="polite" class="sr-solo"></div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
