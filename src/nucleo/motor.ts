@@ -35,6 +35,26 @@ export function pozoDe(estado: EstadoRonda): Participante[] {
   return estado.participantes.filter((p) => !idsGanadores.has(p.id));
 }
 
+export function pesoDe(participante: Participante): number {
+  return Math.max(1, participante.tickets);
+}
+
+export function pesoTotal(pozo: Participante[]): number {
+  return pozo.reduce((acumulado, p) => acumulado + pesoDe(p), 0);
+}
+
+/** Selección por peso acumulado: cada ticket es una "papeleta" más en el sombrero. */
+export function elegirPorPeso(pozo: Participante[], azar: Azar): { participante: Participante; indice: number } {
+  const total = pesoTotal(pozo);
+  const posicion = azar(total);
+  let acumulado = 0;
+  for (let i = 0; i < pozo.length; i += 1) {
+    acumulado += pesoDe(pozo[i]);
+    if (posicion < acumulado) return { participante: pozo[i], indice: i };
+  }
+  return { participante: pozo[pozo.length - 1], indice: pozo.length - 1 };
+}
+
 function calcularPuestoTexto(estado: EstadoRonda): string {
   if (estado.config.modo === 'lote') {
     const puesto = estado.ganadoresRondaActual.length + 1;
@@ -58,8 +78,7 @@ export function girar(estado: EstadoRonda, azar: Azar, ahora: Date): ResultadoGi
   const pozo = pozoDe(estado);
   if (pozo.length === 0) return null;
 
-  const indice = azar(pozo.length);
-  const participanteGanador = pozo[indice];
+  const { participante: participanteGanador } = elegirPorPeso(pozo, azar);
   const puestoTexto = calcularPuestoTexto(estado);
   const ganador: Ganador = {
     participante: participanteGanador,

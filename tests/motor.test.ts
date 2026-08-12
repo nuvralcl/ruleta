@@ -4,7 +4,9 @@ import {
   actualizarConfig,
   actualizarParticipantes,
   crearRonda,
+  elegirPorPeso,
   girar,
+  pesoTotal,
   pozoDe,
 } from '../src/nucleo/motor';
 import type { Config, Participante } from '../src/nucleo/tipos';
@@ -202,6 +204,38 @@ describe('girar — modo continuo', () => {
   });
 });
 
+describe('elegirPorPeso', () => {
+  it('con un ticket cada uno, la posición del azar es el índice ganador', () => {
+    const participantes = crearParticipantes(['Ana', 'Beto', 'Caro']);
+    expect(pesoTotal(participantes)).toBe(3);
+    expect(elegirPorPeso(participantes, azarFijo(0)).participante.nombre).toBe('Ana');
+    expect(elegirPorPeso(participantes, azarFijo(1)).participante.nombre).toBe('Beto');
+    expect(elegirPorPeso(participantes, azarFijo(2)).participante.nombre).toBe('Caro');
+  });
+
+  it('reparte por peso acumulado: Beto con 3 tickets cubre las posiciones 1 a 3', () => {
+    const participantes: Participante[] = [
+      { id: 'p0', nombre: 'Ana', tickets: 1 },
+      { id: 'p1', nombre: 'Beto', tickets: 3 },
+      { id: 'p2', nombre: 'Caro', tickets: 1 },
+    ];
+    expect(pesoTotal(participantes)).toBe(5);
+    expect(elegirPorPeso(participantes, azarFijo(0)).participante.nombre).toBe('Ana');
+    expect(elegirPorPeso(participantes, azarFijo(1)).participante.nombre).toBe('Beto');
+    expect(elegirPorPeso(participantes, azarFijo(2)).participante.nombre).toBe('Beto');
+    expect(elegirPorPeso(participantes, azarFijo(3)).participante.nombre).toBe('Beto');
+    expect(elegirPorPeso(participantes, azarFijo(4)).participante.nombre).toBe('Caro');
+  });
+
+  it('tickets en 0 o negativo se tratan como 1 (nunca desaparece del pozo)', () => {
+    const participantes: Participante[] = [
+      { id: 'p0', nombre: 'Ana', tickets: 0 },
+      { id: 'p1', nombre: 'Beto', tickets: -5 },
+    ];
+    expect(pesoTotal(participantes)).toBe(2);
+  });
+});
+
 describe('actualizarParticipantes', () => {
   it('editar la lista a mitad de ronda conserva el historial', () => {
     const [ana, beto, caro] = crearParticipantes(['Ana', 'Beto', 'Caro']);
@@ -254,6 +288,35 @@ describe('girar — estadístico', () => {
       const proporcion = (conteos.get(nombre) ?? 0) / TOTAL;
       expect(proporcion).toBeGreaterThan(0.15);
       expect(proporcion).toBeLessThan(0.183);
+    }
+  });
+
+  it('selección por peso: la proporción de victorias sigue los tickets de cada uno', () => {
+    // Ana=1 ticket, Beto=2, Caro=3 → total 6 papeletas: 1/6, 2/6, 3/6.
+    const participantes: Participante[] = [
+      { id: 'p0', nombre: 'Ana', tickets: 1 },
+      { id: 'p1', nombre: 'Beto', tickets: 2 },
+      { id: 'p2', nombre: 'Caro', tickets: 3 },
+    ];
+    const estado = crearRonda(configBase({ modo: 'continuo', repeticion: 'con' }), participantes);
+    const azar = azarConSemillaLocal(7654321);
+    const conteos = new Map<string, number>([
+      ['Ana', 0],
+      ['Beto', 0],
+      ['Caro', 0],
+    ]);
+
+    const TOTAL = 60_000;
+    for (let i = 0; i < TOTAL; i += 1) {
+      const resultado = girar(estado, azar, AHORA)!;
+      conteos.set(resultado.ganador.nombre, (conteos.get(resultado.ganador.nombre) ?? 0) + 1);
+    }
+
+    const esperado: Record<string, number> = { Ana: 1 / 6, Beto: 2 / 6, Caro: 3 / 6 };
+    for (const [nombre, proporcionEsperada] of Object.entries(esperado)) {
+      const proporcion = (conteos.get(nombre) ?? 0) / TOTAL;
+      expect(proporcion).toBeGreaterThan(proporcionEsperada - 0.02);
+      expect(proporcion).toBeLessThan(proporcionEsperada + 0.02);
     }
   });
 });

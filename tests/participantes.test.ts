@@ -113,6 +113,40 @@ describe('quitarDuplicados', () => {
   });
 });
 
+describe('parseParticipantes — tickets (sintaxis xN)', () => {
+  it('sin sufijo, el participante tiene 1 ticket', () => {
+    const { participantes } = parseParticipantes('Ana');
+    expect(participantes[0].tickets).toBe(1);
+  });
+
+  it('"Nombre, x3" da 3 tickets', () => {
+    const { participantes } = parseParticipantes('Ana, x3');
+    expect(participantes[0].tickets).toBe(3);
+  });
+
+  it('funciona junto con correo y teléfono, en cualquier orden', () => {
+    const { participantes } = parseParticipantes(
+      'Camila Riquelme, camila.r@correo.cl, +56 9 8123 4455, x5',
+    );
+    expect(participantes[0]).toMatchObject({
+      nombre: 'Camila Riquelme',
+      correo: 'camila.r@correo.cl',
+      fono: '+56 9 8123 4455',
+      tickets: 5,
+    });
+  });
+
+  it('es insensible a mayúsculas (X3 igual que x3)', () => {
+    const { participantes } = parseParticipantes('Ana, X3');
+    expect(participantes[0].tickets).toBe(3);
+  });
+
+  it('x0 o valores inválidos no bajan de 1 ticket', () => {
+    const { participantes } = parseParticipantes('Ana, x0');
+    expect(participantes[0].tickets).toBe(1);
+  });
+});
+
 describe('parseParticipantes — límite de 5.000 líneas', () => {
   it('no trunca listas de 5.000 líneas o menos', () => {
     const texto = Array.from({ length: LIMITE_LINEAS }, (_, i) => `P${i}`).join('\n');

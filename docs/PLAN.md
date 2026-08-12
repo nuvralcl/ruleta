@@ -228,10 +228,17 @@ cada punto, más el cálculo formal de contraste.
       del ganador si el organizador los pegó (a diferencia de lo que se
       guarda en `localStorage`, que nunca los incluye).
 
-### ⬜ T3.3 — Tickets por participante
-- [ ] Sintaxis `Nombre, correo, x3` o columna de tickets al importar.
-- [ ] Selección por peso acumulado, con test estadístico de proporción.
-- [ ] La ruleta refleja el peso en el ancho del segmento.
+### ✅ T3.3 — Tickets por participante
+- [x] Sintaxis `Nombre, correo, x3` al pegar (`RE_TICKETS` en
+      `nucleo/participantes.ts`). ~~Columna de tickets al importar~~ no aplica:
+      la importación de archivos quedó fuera de alcance en T3.2.
+- [x] Selección por peso acumulado (`elegirPorPeso`/`pesoTotal` en
+      `nucleo/motor.ts`), con test estadístico: 60.000 giros con tickets
+      1/2/3 reparten ~1/6, ~2/6, ~3/6 (±2 puntos).
+- [x] La ruleta refleja el peso en el ancho del segmento
+      (`anchosAngulares` en `vista/ruleta.ts`) — verificado visualmente en el
+      navegador con un participante en `x5` ocupando más de la mitad del
+      círculo, y el giro cae exactamente en su segmento.
 
 ### ⬜ T3.4 — Premios por puesto
 - [ ] Lista de premios editable; el anuncio muestra el premio del puesto.

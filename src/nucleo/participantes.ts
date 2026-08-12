@@ -2,6 +2,7 @@ import type { Participante } from './tipos';
 
 const RE_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RE_FONO = /^[+()\d][\d\s()+-]{5,}$/;
+const RE_TICKETS = /^x(\d+)$/i;
 
 export function normalizarNombre(nombre: string): string {
   return nombre
@@ -65,9 +66,12 @@ export function parseParticipantes(texto: string): ResultadoParseo {
     const nombre = campos[0] ?? linea;
     let correo: string | undefined;
     let fono: string | undefined;
+    let tickets = 1;
     for (const campo of campos.slice(1)) {
+      const coincidenciaTickets = RE_TICKETS.exec(campo);
       if (!correo && RE_CORREO.test(campo)) correo = campo;
       else if (!fono && RE_FONO.test(campo)) fono = campo;
+      else if (coincidenciaTickets) tickets = Math.max(1, Number(coincidenciaTickets[1]));
     }
 
     const clave = normalizarNombre(nombre);
@@ -79,7 +83,7 @@ export function parseParticipantes(texto: string): ResultadoParseo {
       nombre,
       correo,
       fono,
-      tickets: 1,
+      tickets,
     });
   }
 

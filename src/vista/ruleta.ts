@@ -28,8 +28,37 @@ function colorParaSegmento(indice: number, n: number): string {
   return color;
 }
 
-function centroSegmento(indice: number, n: number): number {
-  return (indice + 0.5) * ((Math.PI * 2) / n);
+function pesoDe(p: Participante): number {
+  return Math.max(1, p.tickets);
+}
+
+/** Ancho angular de cada segmento proporcional a sus tickets. */
+function anchosAngulares(pozo: Participante[]): number[] {
+  const total = pozo.reduce((acumulado, p) => acumulado + pesoDe(p), 0);
+  return pozo.map((p) => (pesoDe(p) / total) * Math.PI * 2);
+}
+
+function limitesAcumulados(anchos: number[]): number[] {
+  const limites: number[] = [];
+  let acumulado = 0;
+  for (const ancho of anchos) {
+    acumulado += ancho;
+    limites.push(acumulado);
+  }
+  return limites;
+}
+
+function indiceEnLimites(limites: number[], angulo: number): number {
+  for (let i = 0; i < limites.length; i += 1) {
+    if (angulo < limites[i]) return i;
+  }
+  return limites.length - 1;
+}
+
+function centroDeSegmento(anchos: number[], indice: number): number {
+  let inicio = 0;
+  for (let i = 0; i < indice; i += 1) inicio += anchos[i];
+  return inicio + anchos[indice] / 2;
 }
 
 export type OpcionesGiro = {
@@ -86,14 +115,15 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
     radio: number,
   ): void {
     const n = pozo.length;
-    const anguloPorSegmento = (Math.PI * 2) / n;
+    const anchos = anchosAngulares(pozo);
     const mostrarTexto = n <= UMBRAL_SIN_TEXTO;
 
     contexto.save();
     contexto.translate(cx, cy);
+    let inicio = 0;
     for (let i = 0; i < n; i += 1) {
-      const inicio = i * anguloPorSegmento;
-      const fin = inicio + anguloPorSegmento;
+      const ancho = anchos[i];
+      const fin = inicio + ancho;
       contexto.beginPath();
       contexto.moveTo(0, 0);
       contexto.arc(0, 0, radio, inicio, fin);
@@ -105,7 +135,7 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
 
       if (mostrarTexto) {
         contexto.save();
-        contexto.rotate(inicio + anguloPorSegmento / 2);
+        contexto.rotate(inicio + ancho / 2);
         contexto.textAlign = 'right';
         contexto.textBaseline = 'middle';
         contexto.fillStyle = COLOR_TEXTO_SEGMENTO;
@@ -113,6 +143,7 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
         contexto.fillText(recortar(pozo[i].nombre, 20), radio - radio * 0.06, 0);
         contexto.restore();
       }
+      inicio = fin;
     }
     contexto.restore();
   }
@@ -206,14 +237,19 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
     const anguloInicial = anguloAcumulado;
     const a0 = normalizarAngulo(anguloInicial);
 
+    const anchos = modoDisco ? [] : anchosAngulares(pozo);
+    const limites = modoDisco ? [] : limitesAcumulados(anchos);
+
     let anguloFinal: number;
     if (modoDisco) {
       anguloFinal = anguloInicial + vueltas * Math.PI * 2 + Math.random() * Math.PI * 2;
     } else {
-      const anguloPorSegmento = (Math.PI * 2) / n;
-      const margen = anguloPorSegmento * 0.15;
-      const desvio = margen + Math.random() * (anguloPorSegmento - margen * 2);
-      const objetivoBase = normalizarAngulo(-Math.PI / 2 - centroSegmento(indiceGanador, n) + desvio);
+      const anchoGanador = anchos[indiceGanador];
+      const margen = anchoGanador * 0.15;
+      const desvio = margen + Math.random() * (anchoGanador - margen * 2);
+      const objetivoBase = normalizarAngulo(
+        -Math.PI / 2 - centroDeSegmento(anchos, indiceGanador) + desvio,
+      );
       const delta = normalizarAngulo(objetivoBase - a0);
       anguloFinal = anguloInicial + vueltas * Math.PI * 2 + delta;
     }
@@ -228,9 +264,8 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
       dibujar(pozo);
 
       if (!modoDisco && onTic) {
-        const anguloPorSegmento = (Math.PI * 2) / n;
         const actual = normalizarAngulo(anguloAcumulado);
-        if (Math.floor(actual / anguloPorSegmento) !== Math.floor(ultimoAnguloParaTic / anguloPorSegmento)) {
+        if (indiceEnLimites(limites, actual) !== indiceEnLimites(limites, ultimoAnguloParaTic)) {
           onTic(t < 1 ? 1 - t : 0);
         }
         ultimoAnguloParaTic = actual;
