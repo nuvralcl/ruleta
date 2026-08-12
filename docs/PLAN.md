@@ -186,10 +186,17 @@ Ya venía implementado desde el port de T0.2 (la demo seguía la sección 7 de
 la especificación desde el principio); esta tarea fue sobre todo verificar
 cada punto, más el cálculo formal de contraste.
 
-### ⬜ T2.4 — Marca del organizador
-- [ ] Logo (PNG/SVG) al centro de la ruleta, subido desde el equipo.
-- [ ] Color de acento configurable; el resto de la paleta se deriva sola.
-- [ ] La imagen se queda en memoria, no se sube a ningún servidor.
+### ✅ T2.4 — Marca del organizador
+- [x] Logo (PNG/SVG) al centro de la ruleta, subido desde el equipo
+      (`<input type="file">` + `URL.createObjectURL`, dibujado recortado en
+      círculo sobre la capa rotable, sin rotar).
+- [x] Color de acento configurable (`<input type="color">` escribe
+      `--color-acento`); el resto de la paleta no depende de él y sigue igual
+      — botón, marquesina y ticket lo toman solos vía CSS, el canvas usa
+      `ruleta.establecerColorAcento`.
+- [x] La imagen se queda en memoria: se verificó con `read_network_requests`
+      que solo se lee el `blob:` local, no sale ninguna petición externa.
+      `URL.revokeObjectURL` libera el blob anterior al cambiar o quitar el logo.
 
 ---
 

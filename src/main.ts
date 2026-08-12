@@ -173,6 +173,40 @@ btnProyeccion.addEventListener('click', () => {
   proyeccion.alternar();
 });
 
+const inputLogo = elemento<HTMLInputElement>('logoOrganizador');
+const btnQuitarLogo = elemento<HTMLButtonElement>('btnQuitarLogo');
+let urlLogoActual: string | null = null;
+
+inputLogo.addEventListener('change', () => {
+  const archivo = inputLogo.files?.[0];
+  if (!archivo) return;
+  const url = URL.createObjectURL(archivo);
+  const imagen = new Image();
+  imagen.onload = () => {
+    ruleta.establecerLogo(imagen);
+    btnQuitarLogo.hidden = false;
+    if (urlLogoActual) URL.revokeObjectURL(urlLogoActual);
+    urlLogoActual = url;
+  };
+  imagen.src = url;
+});
+
+btnQuitarLogo.addEventListener('click', () => {
+  ruleta.establecerLogo(null);
+  inputLogo.value = '';
+  btnQuitarLogo.hidden = true;
+  if (urlLogoActual) {
+    URL.revokeObjectURL(urlLogoActual);
+    urlLogoActual = null;
+  }
+});
+
+const inputColorAcento = elemento<HTMLInputElement>('colorAcento');
+inputColorAcento.addEventListener('input', () => {
+  document.documentElement.style.setProperty('--color-acento', inputColorAcento.value);
+  ruleta.establecerColorAcento(inputColorAcento.value);
+});
+
 document.addEventListener('keydown', (evento) => {
   if (panel.elementoActivoEsCampo()) return;
   if (evento.code === 'Space') {

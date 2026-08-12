@@ -35,6 +35,17 @@
   font-family: inherit;
 }
 
+.panel input[type='color'] {
+  padding: 4px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.panel input[type='file'] {
+  padding: 6px;
+  font-size: 0.85rem;
+}
+
 .fila {
   display: flex;
   gap: 12px;

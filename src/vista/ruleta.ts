@@ -53,6 +53,8 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
 
   let anguloAcumulado = 0;
   let pozoActual: Participante[] = [];
+  let colorAcento = COLOR_ACENTO;
+  let logo: CanvasImageSource | null = null;
 
   function ajustarTamano(): void {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -139,11 +141,24 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
     ctx.arc(cx, cy, radio * 0.24, 0, Math.PI * 2);
     ctx.fillStyle = COLOR_PANEL;
     ctx.fill();
-    ctx.fillStyle = COLOR_ACENTO;
+    ctx.fillStyle = colorAcento;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `700 ${Math.round(radio * 0.14)}px system-ui, sans-serif`;
     ctx.fillText(String(n), cx, cy);
+  }
+
+  function dibujarLogo(cx: number, cy: number, radio: number): void {
+    if (!ctx || !logo) return;
+    const radioHub = radio * 0.24;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, radioHub, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.clip();
+    ctx.drawImage(logo, cx - radioHub, cy - radioHub, radioHub * 2, radioHub * 2);
+    ctx.restore();
   }
 
   function dibujar(pozo: Participante[]): void {
@@ -177,7 +192,9 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
     ctx.drawImage(capaRotable, -cx, -cy);
     ctx.restore();
 
-    if (pozo.length > UMBRAL_MODO_DISCO) {
+    if (logo) {
+      dibujarLogo(cx, cy, radio);
+    } else if (pozo.length > UMBRAL_MODO_DISCO) {
       dibujarContadorDisco(cx, cy, radio, pozo.length);
     }
   }
@@ -231,7 +248,17 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
     requestAnimationFrame(paso);
   }
 
-  return { dibujar, girarHasta, ajustarTamano };
+  function establecerLogo(imagen: CanvasImageSource | null): void {
+    logo = imagen;
+    dibujar(pozoActual);
+  }
+
+  function establecerColorAcento(color: string): void {
+    colorAcento = color;
+    dibujar(pozoActual);
+  }
+
+  return { dibujar, girarHasta, ajustarTamano, establecerLogo, establecerColorAcento };
 }
 
 export type Ruleta = ReturnType<typeof crearRuleta>;

@@ -56,6 +56,20 @@
             </select>
           </div>
 
+          <div class="fila">
+            <div>
+              <label for="logoOrganizador">Logo (centro de la ruleta)</label>
+              <input id="logoOrganizador" type="file" accept="image/png,image/svg+xml" />
+            </div>
+            <div>
+              <label for="colorAcento">Color de acento</label>
+              <input id="colorAcento" type="color" value="#ffd166" />
+            </div>
+          </div>
+          <button id="btnQuitarLogo" class="boton-silencio" type="button" hidden>
+            Quitar logo
+          </button>
+
           <button id="btnGirar" class="boton-girar" type="button">Girar la ruleta</button>
           <div class="fila">
             <button id="btnSilencio" class="boton-silencio" type="button" aria-pressed="false">
