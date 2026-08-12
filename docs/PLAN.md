@@ -169,11 +169,22 @@ esparcidos por la UI.
 - [x] Título del sorteo editable, visible en modo proyección (vive fuera de
       `.panel`, que es lo único que se oculta).
 
-### ⬜ T2.3 — Accesibilidad y teclado
-- [ ] Barra espaciadora gira, salvo con foco en un campo de texto.
-- [ ] Trampa de foco en el anuncio, `Esc` cierra, foco vuelve al botón.
-- [ ] `aria-live` anuncia el ganador; contraste AA verificado en los 4 tonos.
-- [ ] `prefers-reduced-motion` cubre giro, confeti y ampolletas.
+### ✅ T2.3 — Accesibilidad y teclado
+- [x] Barra espaciadora gira, salvo con foco en un campo de texto (probado con
+      foco en textarea/input/select/botón).
+- [x] Trampa de foco en el anuncio, `Esc` cierra, foco vuelve al botón
+      (`vista/anuncio.ts`, un solo elemento enfocable dentro del modal).
+- [x] `aria-live="polite"` anuncia "Ganó &lt;nombre&gt;"; contraste AA
+      verificado con la fórmula de WCAG 2 sobre texto `#1c1140` en los 4 tonos:
+      `#ff6b6b` 6.29:1 · `#4ecdc4` 9.02:1 · `#ffd166` 12.10:1 · `#a78bfa`
+      6.41:1 — los cuatro pasan el mínimo de 4.5:1.
+- [x] `prefers-reduced-motion` acorta el giro a 0,9s sin confeti (`main.ts`) y
+      apaga la animación de las ampolletas y la vibración de la aguja (media
+      query en `componentes.css`).
+
+Ya venía implementado desde el port de T0.2 (la demo seguía la sección 7 de
+la especificación desde el principio); esta tarea fue sobre todo verificar
+cada punto, más el cálculo formal de contraste.
 
 ### ⬜ T2.4 — Marca del organizador
 - [ ] Logo (PNG/SVG) al centro de la ruleta, subido desde el equipo.
