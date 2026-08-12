@@ -48,18 +48,20 @@ de lo que se ve ni de lo que hace**. Es una refactorización, no un rediseño.
 
 ---
 
-### ⬜ T0.3 — Docker y despliegue en Dokploy
+### 🟨 T0.3 — Docker y despliegue en Dokploy
 
 **Objetivo:** el sitio construido corre en nginx y queda publicado.
 
 **Criterios de aceptación**
-- [ ] Dockerfile multi-stage: `node:22-alpine` construye, `nginx:1.27-alpine` sirve.
-- [ ] `nginx.conf` con gzip, `try_files`, cache largo para assets con hash y
+- [x] Dockerfile multi-stage: `node:22-alpine` construye, `nginx:1.27-alpine` sirve.
+- [x] `nginx.conf` con gzip, `try_files`, cache largo para assets con hash y
       `no-cache` para `index.html`, más cabeceras `X-Content-Type-Options`,
       `X-Frame-Options`, `Referrer-Policy`.
-- [ ] `docker compose up --build` sirve la app en `:8080`.
-- [ ] Imagen final bajo 60 MB (`docker images`).
-- [ ] `docs/DEPLOY.md` con los pasos de Dokploy verificados en el panel real.
+- [ ] `docker compose up --build` sirve la app en `:8080`. **Sin verificar:**
+      esta máquina no tiene Docker instalado.
+- [ ] Imagen final bajo 60 MB (`docker images`). **Sin verificar**, mismo motivo.
+- [x] `docs/DEPLOY.md` con los pasos de Dokploy (pendiente confirmar en un
+      panel real de Dokploy, ver nota abajo).
 
 ```dockerfile
 FROM node:22-alpine AS build
@@ -246,3 +248,10 @@ _Claude Code anota acá lo que encuentre y no corresponda arreglar en la tarea e
 - (T0.2) `nucleo/motor.ts` ya quedó con la forma de estado puro que pedía T1.1
   (`crearRonda`, `girar(estado, azar, ahora)`, `pozoDe(estado)`) en vez de la
   versión más simple de la demo, para no reescribirlo dos veces.
+- (T0.3) **Docker sin instalar en esta máquina** — no se pudo correr
+  `docker compose up --build` ni medir el tamaño de la imagen. El Dockerfile,
+  `nginx.conf` y `docker-compose.yml` están escritos y revisados a mano, y el
+  contenido de `dist/` se probó funcionalmente sirviéndolo con un servidor
+  estático (sin nginx real). Falta: correr el build de Docker una vez donde
+  haya Docker disponible (o directamente en el primer deploy de Dokploy) y
+  confirmar tamaño de imagen y cabeceras de `nginx.conf` en una respuesta real.
