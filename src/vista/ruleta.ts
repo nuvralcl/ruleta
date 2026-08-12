@@ -44,6 +44,13 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('El canvas no soporta contexto 2D');
 
+  // Los segmentos (o los anillos del modo disco) se dibujan una sola vez en
+  // este canvas fuera de pantalla; cada frame del giro solo lo rota y lo
+  // pega encima, en vez de volver a trazar cada segmento.
+  const capaRotable = document.createElement('canvas');
+  const ctxCapa = capaRotable.getContext('2d');
+  let pozoCacheado: Participante[] | null = null;
+
   let anguloAcumulado = 0;
   let pozoActual: Participante[] = [];
 
@@ -52,23 +59,82 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
     const rect = canvas.getBoundingClientRect();
     canvas.width = Math.max(1, Math.round(rect.width * dpr));
     canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    pozoCacheado = null; // el tamaño cambió: la capa cacheada quedó obsoleta
     dibujar(pozoActual);
   }
 
-  function dibujarModoDisco(cx: number, cy: number, radio: number, n: number, angulo: number): void {
-    if (!ctx) return;
+  function dibujarAnillosDisco(contexto: CanvasRenderingContext2D, cx: number, cy: number, radio: number): void {
     const anillos = 10;
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(angulo);
+    contexto.save();
+    contexto.translate(cx, cy);
     for (let i = anillos; i > 0; i -= 1) {
-      ctx.beginPath();
-      ctx.arc(0, 0, radio * (i / anillos), 0, Math.PI * 2);
-      ctx.fillStyle = TONOS[i % TONOS.length];
-      ctx.fill();
+      contexto.beginPath();
+      contexto.arc(0, 0, radio * (i / anillos), 0, Math.PI * 2);
+      contexto.fillStyle = TONOS[i % TONOS.length];
+      contexto.fill();
     }
-    ctx.restore();
+    contexto.restore();
+  }
 
+  function dibujarSegmentos(
+    contexto: CanvasRenderingContext2D,
+    pozo: Participante[],
+    cx: number,
+    cy: number,
+    radio: number,
+  ): void {
+    const n = pozo.length;
+    const anguloPorSegmento = (Math.PI * 2) / n;
+    const mostrarTexto = n <= UMBRAL_SIN_TEXTO;
+
+    contexto.save();
+    contexto.translate(cx, cy);
+    for (let i = 0; i < n; i += 1) {
+      const inicio = i * anguloPorSegmento;
+      const fin = inicio + anguloPorSegmento;
+      contexto.beginPath();
+      contexto.moveTo(0, 0);
+      contexto.arc(0, 0, radio, inicio, fin);
+      contexto.closePath();
+      contexto.fillStyle = colorParaSegmento(i, n);
+      contexto.fill();
+      contexto.strokeStyle = 'rgba(18,10,36,0.25)';
+      contexto.stroke();
+
+      if (mostrarTexto) {
+        contexto.save();
+        contexto.rotate(inicio + anguloPorSegmento / 2);
+        contexto.textAlign = 'right';
+        contexto.textBaseline = 'middle';
+        contexto.fillStyle = COLOR_TEXTO_SEGMENTO;
+        contexto.font = `600 ${Math.round(radio * 0.045)}px system-ui, sans-serif`;
+        contexto.fillText(recortar(pozo[i].nombre, 20), radio - radio * 0.06, 0);
+        contexto.restore();
+      }
+    }
+    contexto.restore();
+  }
+
+  function asegurarCapaRotable(pozo: Participante[], w: number, h: number, cx: number, cy: number, radio: number): void {
+    if (!ctxCapa) return;
+    if (capaRotable.width !== w || capaRotable.height !== h) {
+      capaRotable.width = w;
+      capaRotable.height = h;
+      pozoCacheado = null;
+    }
+    if (pozoCacheado === pozo) return;
+    pozoCacheado = pozo;
+
+    ctxCapa.clearRect(0, 0, w, h);
+    if (pozo.length > UMBRAL_MODO_DISCO) {
+      dibujarAnillosDisco(ctxCapa, cx, cy, radio);
+    } else {
+      dibujarSegmentos(ctxCapa, pozo, cx, cy, radio);
+    }
+  }
+
+  function dibujarContadorDisco(cx: number, cy: number, radio: number, n: number): void {
+    if (!ctx) return;
     ctx.beginPath();
     ctx.arc(cx, cy, radio * 0.24, 0, Math.PI * 2);
     ctx.fillStyle = COLOR_PANEL;
@@ -103,43 +169,17 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
       return;
     }
 
-    const n = pozo.length;
-
-    if (n > UMBRAL_MODO_DISCO) {
-      dibujarModoDisco(cx, cy, radio, n, anguloAcumulado);
-      return;
-    }
-
-    const anguloPorSegmento = (Math.PI * 2) / n;
-    const mostrarTexto = n <= UMBRAL_SIN_TEXTO;
+    asegurarCapaRotable(pozo, w, h, cx, cy, radio);
 
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(anguloAcumulado);
-    for (let i = 0; i < n; i += 1) {
-      const inicio = i * anguloPorSegmento;
-      const fin = inicio + anguloPorSegmento;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, radio, inicio, fin);
-      ctx.closePath();
-      ctx.fillStyle = colorParaSegmento(i, n);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(18,10,36,0.25)';
-      ctx.stroke();
-
-      if (mostrarTexto) {
-        ctx.save();
-        ctx.rotate(inicio + anguloPorSegmento / 2);
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = COLOR_TEXTO_SEGMENTO;
-        ctx.font = `600 ${Math.round(radio * 0.045)}px system-ui, sans-serif`;
-        ctx.fillText(recortar(pozo[i].nombre, 20), radio - radio * 0.06, 0);
-        ctx.restore();
-      }
-    }
+    ctx.drawImage(capaRotable, -cx, -cy);
     ctx.restore();
+
+    if (pozo.length > UMBRAL_MODO_DISCO) {
+      dibujarContadorDisco(cx, cy, radio, pozo.length);
+    }
   }
 
   function girarHasta(pozo: Participante[], opciones: OpcionesGiro): void {

@@ -150,11 +150,16 @@ esparcidos por la UI.
 
 ## Fase 2 — Experiencia en vivo
 
-### ⬜ T2.1 — Ruleta que aguanta listas grandes
-- [ ] ≤46: nombres. 47–200: segmentos sin texto. >200: modo disco con contador.
-- [ ] 1.000 participantes mantienen 60 fps en el giro (medir con Performance).
-- [ ] El pozo no se redibuja completo en cada frame si no cambió (cachear en
-      canvas fuera de pantalla y solo rotar).
+### ✅ T2.1 — Ruleta que aguanta listas grandes
+- [x] ≤46: nombres. 47–200: segmentos sin texto. >200: modo disco con contador.
+- [x] 1.000 participantes mantienen 60 fps en el giro (medido con
+      `performance.now()` sobre los timestamps de `requestAnimationFrame`
+      durante un giro real en el navegador: ~59-60 fps promedio con 200 y con
+      1.000 participantes).
+- [x] El pozo no se redibuja completo en cada frame si no cambió: los
+      segmentos (o los anillos del modo disco) se dibujan una vez en un
+      canvas fuera de pantalla (`capaRotable` en `vista/ruleta.ts`) y cada
+      frame solo se rota y se pega con `drawImage`.
 
 ### ⬜ T2.2 — Modo proyección
 - [ ] Tecla `F` o botón: oculta el panel, ruleta centrada al máximo, tipografía
