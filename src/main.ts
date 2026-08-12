@@ -1,4 +1,5 @@
-import { azarCripto } from './nucleo/azar';
+import { crearActa } from './nucleo/acta';
+import { azarConSemilla, azarCripto } from './nucleo/azar';
 import { actualizarConfig, actualizarParticipantes, crearRonda, girar, pozoDe } from './nucleo/motor';
 import { LIMITE_LINEAS, parseParticipantes, quitarDuplicados } from './nucleo/participantes';
 import { crearSintetizador } from './audio/sintetizador';
@@ -39,6 +40,7 @@ const ruleta = crearRuleta(canvasRuleta);
 const confeti = crearConfeti(canvasConfeti);
 const marquesina = crearMarquesina(marcoMarquesina);
 const historial = crearHistorial(elemento<HTMLOListElement>('historial'));
+const codigoActaEl = elemento<HTMLElement>('codigoActa');
 const sintetizador = crearSintetizador();
 const anuncio = crearAnuncio({
   overlay: elemento('anuncioOverlay'),
@@ -111,7 +113,8 @@ function actualizarPozoYDibujo(): void {
 function empezarGiro(): void {
   if (girando) return;
   const pozoAlGirar = pozoDe(estado);
-  const resultado = girar(estado, azarCripto, new Date());
+  const azar = estado.semilla === null ? azarCripto : azarConSemilla(estado.semilla);
+  const resultado = girar(estado, azar, new Date());
   if (!resultado) return;
 
   const indiceGanador = pozoAlGirar.findIndex((p) => p.id === resultado.ganador.id);
@@ -170,3 +173,7 @@ panel.establecerTextoParticipantes(PARTICIPANTES_EJEMPLO);
 if (parseoInicial.duplicados > 0) panel.mostrarAvisoDuplicados(parseoInicial.duplicados);
 ruleta.ajustarTamano();
 actualizarPozoYDibujo();
+
+crearActa(estado.participantesIniciales, estado.semilla).then((acta) => {
+  codigoActaEl.textContent = `Código de verificación: ${acta.codigo}`;
+});

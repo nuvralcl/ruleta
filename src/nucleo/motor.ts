@@ -4,15 +4,25 @@ import type { Config, Ganador, Participante } from './tipos';
 export type EstadoRonda = {
   config: Config;
   participantes: Participante[];
+  /** Lista con la que se abrió la ronda, para el acta — nunca se muta. */
+  participantesIniciales: Participante[];
+  /** Semilla del sorteo si se abrió en modo reproducible; null en modo criptográfico normal. */
+  semilla: number | null;
   historial: Ganador[];
   ganadoresRondaActual: Participante[];
   rondaNumero: number;
 };
 
-export function crearRonda(config: Config, participantes: Participante[]): EstadoRonda {
+export function crearRonda(
+  config: Config,
+  participantes: Participante[],
+  semilla: number | null = null,
+): EstadoRonda {
   return {
     config,
     participantes,
+    participantesIniciales: participantes,
+    semilla,
     historial: [],
     ganadoresRondaActual: [],
     rondaNumero: 1,

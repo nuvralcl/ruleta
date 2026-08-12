@@ -107,10 +107,9 @@ esparcidos por la UI.
 - [x] Test de equidad: con azar falso que devuelve `k`, gana el elemento `k`.
 - [x] Test estadístico: 60.000 giros sobre 6 participantes, cada uno entre 15% y
       18,3%. Con semilla fija para que no sea intermitente.
-- [x] Cobertura de `motor.ts` en 100% (`npx vitest run --coverage`). El umbral
-      global de 90% sobre todo `src/nucleo/` (configurado en `vite.config.ts`)
-      queda pendiente hasta que T1.2 y T1.3 agreguen tests a `participantes.ts`
-      y `azar.ts` — hoy esos dos archivos están en 0%.
+- [x] Cobertura de `motor.ts` en 100%. El umbral global de 90% sobre
+      `src/nucleo/` se cumple desde T1.3 (99.21% con `npm run coverage`, una
+      vez que `participantes.ts` y `azar.ts` tuvieron sus propios tests).
 
 > **Prompt:** Ejecuta T1.1: extrae el motor de sorteo a funciones puras en src/nucleo/motor.ts y escribe la batería de tests de docs/PLAN.md, incluyendo los casos borde de la sección 3 de la especificación. El azar entra siempre por parámetro.
 
@@ -131,19 +130,19 @@ esparcidos por la UI.
 
 ---
 
-### ⬜ T1.3 — Azar auditable
+### ✅ T1.3 — Azar auditable
 
 **Objetivo:** poder repetir un sorteo y demostrar que dio lo mismo.
 
 **Criterios de aceptación**
-- [ ] `azarCripto()` por defecto, sin sesgo de módulo (rechazo de valores altos).
-- [ ] `azarConSemilla(semilla)` determinista (mulberry32) para tests y para el
+- [x] `azarCripto()` por defecto, sin sesgo de módulo (rechazo de valores altos).
+- [x] `azarConSemilla(semilla)` determinista (mulberry32) para tests y para el
       modo "sorteo reproducible".
-- [ ] La ronda registra la semilla usada y la lista de participantes con la que
-      se abrió.
-- [ ] `nucleo/acta.ts`: hash SHA-256 (`crypto.subtle`) de la lista normalizada +
-      semilla, mostrado en la UI como código corto.
-- [ ] Test: misma semilla + misma lista ⇒ misma secuencia de ganadores.
+- [x] La ronda registra la semilla usada y la lista de participantes con la que
+      se abrió (`EstadoRonda.semilla` y `EstadoRonda.participantesIniciales`).
+- [x] `nucleo/acta.ts`: hash SHA-256 (`crypto.subtle`) de la lista normalizada +
+      semilla, mostrado en la UI como código corto (`#codigoActa`).
+- [x] Test: misma semilla + misma lista ⇒ misma secuencia de ganadores.
 
 > **Prompt:** Ejecuta T1.3: azar auditable con semilla, sin sesgo de módulo, y el hash de acta en src/nucleo/acta.ts. Explícame en el resumen final cómo un tercero verificaría un sorteo.
 
@@ -251,6 +250,11 @@ _Claude Code anota acá lo que encuentre y no corresponda arreglar en la tarea e
 - (T0.2) `nucleo/motor.ts` ya quedó con la forma de estado puro que pedía T1.1
   (`crearRonda`, `girar(estado, azar, ahora)`, `pozoDe(estado)`) en vez de la
   versión más simple de la demo, para no reescribirlo dos veces.
+- (T1.3) `crearRonda` ya acepta una `semilla` y `main.ts` ya elige entre
+  `azarCripto`/`azarConSemilla` según `estado.semilla`, pero no hay ningún
+  control en la UI para que el organizador abra una ronda en "modo
+  reproducible" — hoy `semilla` siempre es `null` (modo criptográfico normal).
+  Falta decidir dónde va ese control (¿T4.2, junto al acta imprimible?).
 - (T0.3) **Docker sin instalar en esta máquina** — no se pudo correr
   `docker compose up --build` ni medir el tamaño de la imagen. El Dockerfile,
   `nginx.conf` y `docker-compose.yml` están escritos y revisados a mano, y el
