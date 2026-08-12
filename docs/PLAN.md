@@ -202,11 +202,18 @@ cada punto, más el cálculo formal de contraste.
 
 ## Fase 3 — Datos
 
-### ⬜ T3.1 — Guardar y recuperar
-- [ ] Listas con nombre y historial de rondas en `localStorage`.
-- [ ] Aviso visible de que los datos quedan en ese navegador.
-- [ ] Botón "Borrar todos los datos" que deja el equipo limpio de verdad.
-- [ ] Manejo de cuota llena sin romper la app.
+### ✅ T3.1 — Guardar y recuperar
+- [x] Listas con nombre y historial de rondas en `localStorage`
+      (`src/almacenamiento/local.ts`, claves `tombola:listas` y
+      `tombola:historial`). Solo se guardan nombres — nunca correo ni
+      teléfono, ver `docs/PRIVACIDAD.md` y la decisión #6 de este plan.
+- [x] Aviso visible junto a "Listas guardadas": "Estos datos quedan guardados
+      en este navegador; no se suben a ningún servidor."
+- [x] Botón "Borrar todos los datos" (con confirmación) que borra ambas
+      claves de `localStorage` de verdad — probado en el navegador.
+- [x] Manejo de cuota llena: `guardarLista`/`agregarAlHistorial` devuelven
+      `false` si `localStorage.setItem` falla (try/catch), y la UI muestra un
+      aviso en vez de romperse.
 
 ### ⬜ T3.2 — Importar y exportar
 - [ ] Importar CSV y XLSX (evaluar SheetJS: **DECISIÓN PENDIENTE**, es la única
@@ -280,6 +287,12 @@ _Claude Code anota acá lo que encuentre y no corresponda arreglar en la tarea e
   control en la UI para que el organizador abra una ronda en "modo
   reproducible" — hoy `semilla` siempre es `null` (modo criptográfico normal).
   Falta decidir dónde va ese control (¿T4.2, junto al acta imprimible?).
+- (T3.1) El historial que se ve en pantalla (`historial.renderizar`) es solo
+  el de la ronda actual en memoria; se pierde al recargar la página aunque
+  `agregarAlHistorial` ya lo guardó en `localStorage`. No hay ninguna vista
+  que muestre el historial guardado entre sesiones — probablemente el lugar
+  natural es T4.2 (acta del sorteo) o una vista propia de "historial
+  completo".
 - (T0.3) **Docker sin instalar en esta máquina** — no se pudo correr
   `docker compose up --build` ni medir el tamaño de la imagen. El Dockerfile,
   `nginx.conf` y `docker-compose.yml` están escritos y revisados a mano, y el

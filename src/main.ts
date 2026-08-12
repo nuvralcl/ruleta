@@ -1,4 +1,11 @@
 import { crearActa } from './nucleo/acta';
+import {
+  agregarAlHistorial,
+  borrarTodo,
+  eliminarLista,
+  guardarLista,
+  listarListas,
+} from './almacenamiento/local';
 import { azarConSemilla, azarCripto } from './nucleo/azar';
 import { actualizarConfig, actualizarParticipantes, crearRonda, girar, pozoDe } from './nucleo/motor';
 import { LIMITE_LINEAS, parseParticipantes, quitarDuplicados } from './nucleo/participantes';
@@ -82,15 +89,7 @@ const panel = crearPanel(
     estadoPozo: elemento('estadoPozo'),
   },
   {
-    alCambiarParticipantes: (texto) => {
-      const { participantes, duplicados, truncado, totalLineas } = parseParticipantes(texto);
-      estado = actualizarParticipantes(estado, participantes);
-      if (truncado) panel.mostrarAvisoLimite(totalLineas, LIMITE_LINEAS);
-      else panel.ocultarAvisoLimite();
-      if (duplicados > 0) panel.mostrarAvisoDuplicados(duplicados);
-      else panel.ocultarAvisoDuplicados();
-      actualizarPozoYDibujo();
-    },
+    alCambiarParticipantes: procesarTextoParticipantes,
     alQuitarDuplicados: () => {
       estado = actualizarParticipantes(estado, quitarDuplicados(estado.participantes));
       panel.ocultarAvisoDuplicados();
@@ -107,6 +106,16 @@ const panel = crearPanel(
     },
   },
 );
+
+function procesarTextoParticipantes(texto: string): void {
+  const { participantes, duplicados, truncado, totalLineas } = parseParticipantes(texto);
+  estado = actualizarParticipantes(estado, participantes);
+  if (truncado) panel.mostrarAvisoLimite(totalLineas, LIMITE_LINEAS);
+  else panel.ocultarAvisoLimite();
+  if (duplicados > 0) panel.mostrarAvisoDuplicados(duplicados);
+  else panel.ocultarAvisoDuplicados();
+  actualizarPozoYDibujo();
+}
 
 function actualizarPozoYDibujo(): void {
   const pozo = pozoDe(estado);
@@ -143,6 +152,14 @@ function empezarGiro(): void {
     onFin: () => {
       estado = resultado.estado;
       historial.renderizar(estado.historial);
+      agregarAlHistorial([
+        {
+          nombre: resultado.ganador.nombre,
+          puesto: resultado.puestoTexto,
+          hora: new Date().toISOString(),
+          ronda: estado.rondaNumero,
+        },
+      ]);
 
       girando = false;
       marquesina.marcarGirando(false);
@@ -219,6 +236,84 @@ document.addEventListener('keydown', (evento) => {
     proyeccion.alternar();
   }
 });
+
+const inputNombreLista = elemento<HTMLInputElement>('nombreLista');
+const selectListasGuardadas = elemento<HTMLSelectElement>('listasGuardadas');
+const btnGuardarLista = elemento<HTMLButtonElement>('btnGuardarLista');
+const btnCargarLista = elemento<HTMLButtonElement>('btnCargarLista');
+const btnEliminarLista = elemento<HTMLButtonElement>('btnEliminarLista');
+const btnBorrarTodo = elemento<HTMLButtonElement>('btnBorrarTodo');
+const avisoGuardadoEl = elemento<HTMLElement>('avisoGuardado');
+const textoGuardadoEl = elemento<HTMLElement>('textoGuardado');
+
+function mostrarAvisoGuardado(texto: string): void {
+  avisoGuardadoEl.hidden = false;
+  textoGuardadoEl.textContent = texto;
+  setTimeout(() => {
+    avisoGuardadoEl.hidden = true;
+  }, 4000);
+}
+
+function refrescarListasGuardadas(): void {
+  const listas = listarListas();
+  const seleccionActual = selectListasGuardadas.value;
+  selectListasGuardadas.innerHTML = '<option value="">— Elegir —</option>';
+  for (const lista of listas) {
+    const opcion = document.createElement('option');
+    opcion.value = lista.nombre;
+    opcion.textContent = lista.nombre;
+    selectListasGuardadas.appendChild(opcion);
+  }
+  selectListasGuardadas.value = listas.some((l) => l.nombre === seleccionActual)
+    ? seleccionActual
+    : '';
+}
+
+btnGuardarLista.addEventListener('click', () => {
+  const nombre = inputNombreLista.value.trim();
+  if (!nombre) {
+    mostrarAvisoGuardado('Ponle un nombre a la lista antes de guardar.');
+    return;
+  }
+  const nombres = estado.participantes.map((p) => p.nombre);
+  const ok = guardarLista(nombre, nombres);
+  if (ok) {
+    refrescarListasGuardadas();
+    mostrarAvisoGuardado(`Lista "${nombre}" guardada en este navegador.`);
+  } else {
+    mostrarAvisoGuardado('No se pudo guardar: el almacenamiento local está lleno.');
+  }
+});
+
+btnCargarLista.addEventListener('click', () => {
+  const nombre = selectListasGuardadas.value;
+  if (!nombre) return;
+  const lista = listarListas().find((l) => l.nombre === nombre);
+  if (!lista) return;
+  panel.establecerTextoParticipantes(lista.participantesTexto);
+  procesarTextoParticipantes(lista.participantesTexto);
+  mostrarAvisoGuardado(`Lista "${nombre}" cargada.`);
+});
+
+btnEliminarLista.addEventListener('click', () => {
+  const nombre = selectListasGuardadas.value;
+  if (!nombre) return;
+  eliminarLista(nombre);
+  refrescarListasGuardadas();
+  mostrarAvisoGuardado(`Lista "${nombre}" eliminada.`);
+});
+
+btnBorrarTodo.addEventListener('click', () => {
+  const confirmado = window.confirm(
+    'Esto borra todas las listas guardadas y el historial de este navegador. ¿Continuar?',
+  );
+  if (!confirmado) return;
+  borrarTodo();
+  refrescarListasGuardadas();
+  mostrarAvisoGuardado('Todos los datos guardados en este navegador se borraron.');
+});
+
+refrescarListasGuardadas();
 
 panel.establecerTextoParticipantes(PARTICIPANTES_EJEMPLO);
 if (parseoInicial.duplicados > 0) panel.mostrarAvisoDuplicados(parseoInicial.duplicados);

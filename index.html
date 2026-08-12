@@ -85,6 +85,37 @@
           <ol id="historial" class="historial"></ol>
 
           <p id="codigoActa" class="estado"></p>
+
+          <h2>Listas guardadas</h2>
+          <p class="estado">
+            Estos datos quedan guardados en este navegador; no se suben a
+            ningún servidor. No se guardan correos ni teléfonos.
+          </p>
+          <div>
+            <label for="nombreLista">Nombre de la lista</label>
+            <input id="nombreLista" type="text" placeholder="Ej: Fiesta de fin de año" />
+          </div>
+          <div class="fila">
+            <button id="btnGuardarLista" class="boton-silencio" type="button">
+              Guardar lista actual
+            </button>
+          </div>
+          <div>
+            <label for="listasGuardadas">Cargar lista guardada</label>
+            <select id="listasGuardadas">
+              <option value="">— Elegir —</option>
+            </select>
+          </div>
+          <div class="fila">
+            <button id="btnCargarLista" class="boton-silencio" type="button">Cargar</button>
+            <button id="btnEliminarLista" class="boton-silencio" type="button">Eliminar</button>
+          </div>
+          <p id="avisoGuardado" class="aviso" hidden>
+            <span id="textoGuardado"></span>
+          </p>
+          <button id="btnBorrarTodo" class="boton-silencio" type="button">
+            Borrar todos los datos
+          </button>
         </section>
 
         <section class="escenario" aria-label="Ruleta">
