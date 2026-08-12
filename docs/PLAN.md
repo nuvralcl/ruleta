@@ -116,16 +116,16 @@ esparcidos por la UI.
 
 ---
 
-### ⬜ T1.2 — Parser de participantes robusto
+### ✅ T1.2 — Parser de participantes robusto
 
 **Criterios de aceptación**
-- [ ] Separadores coma, punto y coma, tabulación y 3+ espacios.
-- [ ] Campos entre comillas se respetan: `"Pérez, Ana", ana@correo.cl` es un nombre.
-- [ ] Detección de correo y teléfono en cualquier posición después del nombre.
-- [ ] Normalización para comparar (minúsculas, sin tildes, espacios colapsados).
-- [ ] Contador de duplicados + acción "Quitar repetidos" que conserva el primero.
-- [ ] Corte en 5.000 líneas con aviso claro, sin congelar la pestaña.
-- [ ] Tests con lista pegada desde Excel (tabulaciones y `\r\n`).
+- [x] Separadores coma, punto y coma, tabulación y 3+ espacios.
+- [x] Campos entre comillas se respetan: `"Pérez, Ana", ana@correo.cl` es un nombre.
+- [x] Detección de correo y teléfono en cualquier posición después del nombre.
+- [x] Normalización para comparar (minúsculas, sin tildes, espacios colapsados).
+- [x] Contador de duplicados + acción "Quitar repetidos" que conserva el primero.
+- [x] Corte en 5.000 líneas con aviso claro, sin congelar la pestaña.
+- [x] Tests con lista pegada desde Excel (tabulaciones y `\r\n`).
 
 > **Prompt:** Ejecuta T1.2 según la sección 2 de docs/ESPECIFICACION.md, con tests para cada regla de parseo incluyendo el pegado desde Excel.
 

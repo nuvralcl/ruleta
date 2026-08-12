@@ -1,6 +1,6 @@
 import { azarCripto } from './nucleo/azar';
 import { actualizarConfig, actualizarParticipantes, crearRonda, girar, pozoDe } from './nucleo/motor';
-import { parseParticipantes, quitarDuplicados } from './nucleo/participantes';
+import { LIMITE_LINEAS, parseParticipantes, quitarDuplicados } from './nucleo/participantes';
 import { crearSintetizador } from './audio/sintetizador';
 import { crearAnuncio } from './vista/anuncio';
 import { crearConfeti } from './vista/confeti';
@@ -51,15 +51,17 @@ const anuncio = crearAnuncio({
 const prefiereMovimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let girando = false;
-const { participantes: participantesIniciales } = parseParticipantes(PARTICIPANTES_EJEMPLO);
+const parseoInicial = parseParticipantes(PARTICIPANTES_EJEMPLO);
 let estado = crearRonda(
   { cantidadGanadores: 1, modo: 'lote', repeticion: 'sin' },
-  participantesIniciales,
+  parseoInicial.participantes,
 );
 
 const panel = crearPanel(
   {
     textareaParticipantes: elemento('participantes'),
+    avisoLimite: elemento('avisoLimite'),
+    textoLimite: elemento('textoLimite'),
     avisoDuplicados: elemento('avisoDuplicados'),
     textoDuplicados: elemento('textoDuplicados'),
     btnQuitarDuplicados: elemento('btnQuitarDuplicados'),
@@ -72,8 +74,10 @@ const panel = crearPanel(
   },
   {
     alCambiarParticipantes: (texto) => {
-      const { participantes, duplicados } = parseParticipantes(texto);
+      const { participantes, duplicados, truncado, totalLineas } = parseParticipantes(texto);
       estado = actualizarParticipantes(estado, participantes);
+      if (truncado) panel.mostrarAvisoLimite(totalLineas, LIMITE_LINEAS);
+      else panel.ocultarAvisoLimite();
       if (duplicados > 0) panel.mostrarAvisoDuplicados(duplicados);
       else panel.ocultarAvisoDuplicados();
       actualizarPozoYDibujo();
@@ -163,7 +167,6 @@ document.addEventListener('keydown', (evento) => {
 });
 
 panel.establecerTextoParticipantes(PARTICIPANTES_EJEMPLO);
-const { duplicados: duplicadosIniciales } = parseParticipantes(PARTICIPANTES_EJEMPLO);
-if (duplicadosIniciales > 0) panel.mostrarAvisoDuplicados(duplicadosIniciales);
+if (parseoInicial.duplicados > 0) panel.mostrarAvisoDuplicados(parseoInicial.duplicados);
 ruleta.ajustarTamano();
 actualizarPozoYDibujo();

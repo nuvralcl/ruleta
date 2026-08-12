@@ -39,16 +39,23 @@ export function dividirCampos(linea: string): string[] {
   return campos.filter((campo) => campo.length > 0);
 }
 
+export const LIMITE_LINEAS = 5000;
+
 export type ResultadoParseo = {
   participantes: Participante[];
   duplicados: number;
+  truncado: boolean;
+  totalLineas: number;
 };
 
 export function parseParticipantes(texto: string): ResultadoParseo {
-  const lineas = texto
+  const todasLasLineas = texto
     .split(/\r?\n/)
     .map((linea) => linea.trim())
     .filter(Boolean);
+
+  const truncado = todasLasLineas.length > LIMITE_LINEAS;
+  const lineas = truncado ? todasLasLineas.slice(0, LIMITE_LINEAS) : todasLasLineas;
 
   const participantes: Participante[] = [];
   const conteoPorClave = new Map<string, number>();
@@ -77,7 +84,7 @@ export function parseParticipantes(texto: string): ResultadoParseo {
   }
 
   const duplicados = [...conteoPorClave.values()].filter((n) => n > 1).length;
-  return { participantes, duplicados };
+  return { participantes, duplicados, truncado, totalLineas: todasLasLineas.length };
 }
 
 export function quitarDuplicados(participantes: Participante[]): Participante[] {

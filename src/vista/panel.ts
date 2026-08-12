@@ -2,6 +2,8 @@ import type { Config } from '../nucleo/tipos';
 
 export type ElementosPanel = {
   textareaParticipantes: HTMLTextAreaElement;
+  avisoLimite: HTMLElement;
+  textoLimite: HTMLElement;
   avisoDuplicados: HTMLElement;
   textoDuplicados: HTMLElement;
   btnQuitarDuplicados: HTMLButtonElement;
@@ -24,6 +26,8 @@ export type CallbacksPanel = {
 export function crearPanel(elementos: ElementosPanel, callbacks: CallbacksPanel) {
   const {
     textareaParticipantes,
+    avisoLimite,
+    textoLimite,
     avisoDuplicados,
     textoDuplicados,
     btnQuitarDuplicados,
@@ -66,6 +70,15 @@ export function crearPanel(elementos: ElementosPanel, callbacks: CallbacksPanel)
     avisoDuplicados.hidden = true;
   }
 
+  function mostrarAvisoLimite(totalLineas: number, limite: number): void {
+    avisoLimite.hidden = false;
+    textoLimite.textContent = `La lista tiene ${totalLineas} líneas; solo se usan las primeras ${limite}.`;
+  }
+
+  function ocultarAvisoLimite(): void {
+    avisoLimite.hidden = true;
+  }
+
   function actualizarEstadoPozo(texto: string): void {
     estadoPozo.textContent = texto;
   }
@@ -89,6 +102,8 @@ export function crearPanel(elementos: ElementosPanel, callbacks: CallbacksPanel)
     establecerTextoParticipantes,
     mostrarAvisoDuplicados,
     ocultarAvisoDuplicados,
+    mostrarAvisoLimite,
+    ocultarAvisoLimite,
     actualizarEstadoPozo,
     habilitarGirar,
     actualizarBotonSilencio,
