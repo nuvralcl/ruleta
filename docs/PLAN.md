@@ -89,7 +89,7 @@ redesplegar en cada push.
 
 ## Fase 1 — Núcleo confiable
 
-### ⬜ T1.1 — Motor de sorteo con tests
+### ✅ T1.1 — Motor de sorteo con tests
 
 **Objetivo:** que las modalidades sean lógica probada, no condicionales
 esparcidos por la UI.
@@ -97,17 +97,20 @@ esparcidos por la UI.
 **Archivos:** `src/nucleo/motor.ts`, `tests/motor.test.ts`
 
 **Criterios de aceptación**
-- [ ] `crearRonda(config)`, `girar(estado, azar)` y `pozoDe(estado)` como
+- [x] `crearRonda(config)`, `girar(estado, azar)` y `pozoDe(estado)` como
       funciones puras: reciben estado, devuelven estado nuevo.
-- [ ] Tests que cubren, con azar inyectado y determinista:
+- [x] Tests que cubren, con azar inyectado y determinista:
       lote de 1/2/3/N · continuo sin límite · sin repetir vacía el pozo ·
       con repetición permite ganador repetido · pozo de 1 · pozo vacío ·
       lote de 5 con 3 disponibles cierra la ronda antes ·
       editar la lista a mitad de ronda conserva el historial.
-- [ ] Test de equidad: con azar falso que devuelve `k`, gana el elemento `k`.
-- [ ] Test estadístico: 60.000 giros sobre 6 participantes, cada uno entre 15% y
+- [x] Test de equidad: con azar falso que devuelve `k`, gana el elemento `k`.
+- [x] Test estadístico: 60.000 giros sobre 6 participantes, cada uno entre 15% y
       18,3%. Con semilla fija para que no sea intermitente.
-- [ ] Cobertura de `src/nucleo/` sobre 90%.
+- [x] Cobertura de `motor.ts` en 100% (`npx vitest run --coverage`). El umbral
+      global de 90% sobre todo `src/nucleo/` (configurado en `vite.config.ts`)
+      queda pendiente hasta que T1.2 y T1.3 agreguen tests a `participantes.ts`
+      y `azar.ts` — hoy esos dos archivos están en 0%.
 
 > **Prompt:** Ejecuta T1.1: extrae el motor de sorteo a funciones puras en src/nucleo/motor.ts y escribe la batería de tests de docs/PLAN.md, incluyendo los casos borde de la sección 3 de la especificación. El azar entra siempre por parámetro.
 
