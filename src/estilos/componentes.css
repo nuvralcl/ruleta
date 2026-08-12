@@ -441,3 +441,54 @@
 .modo-proyeccion .anuncio-premio {
   font-size: clamp(1.4rem, 5vh, 3rem);
 }
+
+.acta-imprimible {
+  display: none;
+}
+
+.acta-imprimible dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 12px;
+  margin: 16px 0;
+}
+
+.acta-imprimible dt {
+  font-weight: 700;
+}
+
+.acta-imprimible dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.acta-imprimible table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.acta-imprimible th,
+.acta-imprimible td {
+  border: 1px solid #999;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+@media print {
+  body > *:not(#actaImprimible) {
+    display: none !important;
+  }
+
+  body {
+    overflow-x: visible;
+    background: #ffffff;
+  }
+
+  .acta-imprimible {
+    display: block;
+    color: #000000;
+    background: #ffffff;
+    padding: 0;
+  }
+}

@@ -98,6 +98,11 @@
           </div>
 
           <p id="codigoActa" class="estado"></p>
+          <div class="fila">
+            <button id="btnVerActa" class="boton-silencio" type="button">
+              Ver / imprimir acta
+            </button>
+          </div>
 
           <h2>Listas guardadas</h2>
           <p class="estado">
@@ -197,6 +202,25 @@
     </div>
 
     <canvas id="confeti" class="confeti"></canvas>
+
+    <section id="actaImprimible" class="acta-imprimible">
+      <h1 id="actaTitulo"></h1>
+      <p id="actaFecha"></p>
+      <dl id="actaDatos"></dl>
+      <h2>Ganadores</h2>
+      <table id="actaTabla">
+        <thead>
+          <tr>
+            <th>Puesto</th>
+            <th>Nombre</th>
+            <th>Premio</th>
+            <th>Hora</th>
+          </tr>
+        </thead>
+        <tbody id="actaCuerpo"></tbody>
+      </table>
+      <p id="actaSinGanadores" hidden>Todavía no hay ganadores en esta ronda.</p>
+    </section>
 
     <div id="anuncioOverlay" class="anuncio-overlay" hidden>
       <div class="anuncio-ticket" role="dialog" aria-modal="true" aria-labelledby="anuncioNombre">

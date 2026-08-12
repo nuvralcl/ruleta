@@ -1,4 +1,4 @@
-import { crearActa } from './nucleo/acta';
+import { crearActa, type Acta } from './nucleo/acta';
 import {
   agregarAlHistorial,
   borrarTodo,
@@ -394,6 +394,68 @@ if (parseoInicial.duplicados > 0) panel.mostrarAvisoDuplicados(parseoInicial.dup
 ruleta.ajustarTamano();
 actualizarPozoYDibujo();
 
+let actaActual: Acta | null = null;
 crearActa(estado.participantesIniciales, estado.semilla).then((acta) => {
+  actaActual = acta;
   codigoActaEl.textContent = `Código de verificación: ${acta.codigo}`;
+});
+
+const MODOS_TEXTO: Record<string, string> = { lote: 'Ronda cerrada', continuo: 'Uno a la vez' };
+const REPETICION_TEXTO: Record<string, string> = { sin: 'Sin repetir', con: 'Con repetición' };
+
+function formatearFechaHora(fecha: Date): string {
+  return fecha.toLocaleString('es-CL', { dateStyle: 'long', timeStyle: 'short' });
+}
+
+function prepararActa(): void {
+  const actaTitulo = elemento<HTMLElement>('actaTitulo');
+  const actaFecha = elemento<HTMLElement>('actaFecha');
+  const actaDatos = elemento<HTMLElement>('actaDatos');
+  const actaCuerpo = elemento<HTMLElement>('actaCuerpo');
+  const actaSinGanadores = elemento<HTMLElement>('actaSinGanadores');
+  const actaTabla = elemento<HTMLElement>('actaTabla');
+
+  actaTitulo.textContent = elemento<HTMLInputElement>('titulo').value || 'Sorteo';
+  actaFecha.textContent = `Acta generada el ${formatearFechaHora(new Date())}`;
+
+  const datos: Array<[string, string]> = [
+    ['Participantes', String(estado.participantesIniciales.length)],
+    ['Modo', MODOS_TEXTO[estado.config.modo] ?? estado.config.modo],
+    ['Repetición', REPETICION_TEXTO[estado.config.repeticion] ?? estado.config.repeticion],
+    ['Ganadores por ronda', String(estado.config.cantidadGanadores)],
+    ['Semilla', estado.semilla === null ? 'Criptográfica (no reproducible)' : String(estado.semilla)],
+    ['Código de verificación', actaActual ? actaActual.codigo : 'calculando…'],
+    ['Hash SHA-256 completo', actaActual ? actaActual.hash : 'calculando…'],
+  ];
+  actaDatos.innerHTML = '';
+  for (const [clave, valor] of datos) {
+    const dt = document.createElement('dt');
+    dt.textContent = clave;
+    const dd = document.createElement('dd');
+    dd.textContent = valor;
+    actaDatos.append(dt, dd);
+  }
+
+  actaCuerpo.innerHTML = '';
+  actaSinGanadores.hidden = estado.historial.length > 0;
+  actaTabla.hidden = estado.historial.length === 0;
+  for (const ganador of estado.historial) {
+    const fila = document.createElement('tr');
+    for (const texto of [
+      ganador.puesto,
+      ganador.participante.nombre,
+      ganador.premio ?? '—',
+      formatearFechaHora(ganador.hora),
+    ]) {
+      const celda = document.createElement('td');
+      celda.textContent = texto;
+      fila.appendChild(celda);
+    }
+    actaCuerpo.appendChild(fila);
+  }
+}
+
+elemento<HTMLButtonElement>('btnVerActa').addEventListener('click', () => {
+  prepararActa();
+  window.print();
 });

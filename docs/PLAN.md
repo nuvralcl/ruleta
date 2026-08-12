@@ -272,10 +272,17 @@ cada punto, más el cálculo formal de contraste.
       en `src/` (`grep -rn "console\." src/` sin resultados); no se
       construye ninguna URL con datos de participantes.
 
-### ⬜ T4.2 — Acta del sorteo
-- [ ] Vista imprimible: fecha, título, cantidad de participantes, hash de la
-      lista, semilla, modalidad y ganadores en orden.
-- [ ] Descarga en PDF vía impresión del navegador (sin dependencias).
+### ✅ T4.2 — Acta del sorteo
+- [x] Vista imprimible (`#actaImprimible`, poblada por `prepararActa()` en
+      `main.ts`): fecha y hora de generación, título del sorteo, cantidad de
+      participantes, código corto y hash SHA-256 completo (de T1.3), semilla
+      (o "Criptográfica (no reproducible)"), modo/repetición/ganadores por
+      ronda, y la tabla de ganadores en orden con puesto, nombre, premio y
+      hora. Incluye los premios (pendiente que había quedado anotado en T3.4).
+- [x] Botón "Ver / imprimir acta" llama a `window.print()` — sin
+      dependencias. `@media print` oculta todo lo demás (`body > *:not(#actaImprimible)`)
+      y muestra el acta en blanco y negro. Probado en el navegador poblando
+      el contenido real de una ronda con ganador y premio.
 
 ---
 
@@ -314,20 +321,17 @@ _Claude Code anota acá lo que encuentre y no corresponda arreglar en la tarea e
   (`crearRonda`, `girar(estado, azar, ahora)`, `pozoDe(estado)`) en vez de la
   versión más simple de la demo, para no reescribirlo dos veces.
 - (T1.3) `crearRonda` ya acepta una `semilla` y `main.ts` ya elige entre
-  `azarCripto`/`azarConSemilla` según `estado.semilla`, pero no hay ningún
-  control en la UI para que el organizador abra una ronda en "modo
-  reproducible" — hoy `semilla` siempre es `null` (modo criptográfico normal).
-  Falta decidir dónde va ese control (¿T4.2, junto al acta imprimible?).
-- (T3.1) El historial que se ve en pantalla (`historial.renderizar`) es solo
-  el de la ronda actual en memoria; se pierde al recargar la página aunque
-  `agregarAlHistorial` ya lo guardó en `localStorage`. No hay ninguna vista
-  que muestre el historial guardado entre sesiones — probablemente el lugar
-  natural es T4.2 (acta del sorteo) o una vista propia de "historial
-  completo".
-- (T3.4) Cuando se construya la vista imprimible de T4.2, tiene que incluir
-  la columna de premios (ya está en `Ganador.premio` y en el historial
-  guardado) — no es automático, hay que acordarse de sumarla al armar esa
-  tarea.
+  `azarCripto`/`azarConSemilla` según `estado.semilla`, pero sigue sin haber
+  ningún control en la UI para que el organizador abra una ronda en "modo
+  reproducible" — hoy `semilla` siempre es `null` (modo criptográfico normal)
+  y el acta lo refleja como "Criptográfica (no reproducible)". T4.2 ya pasó
+  y no agregó ese control; queda como una mejora suelta a futuro si hace
+  falta demostrar reproducibilidad real, no solo el hash de verificación.
+- (T3.1) El historial que se ve en pantalla (`historial.renderizar`) sigue
+  siendo solo el de la ronda actual en memoria; se pierde al recargar la
+  página aunque `agregarAlHistorial` ya lo guardó en `localStorage`. T4.2
+  tampoco agregó una vista de ese historial persistido entre sesiones — el
+  acta imprimible (T4.2) solo muestra el historial de la sesión actual.
 - (T0.3) **Docker sin instalar en esta máquina** — no se pudo correr
   `docker compose up --build` ni medir el tamaño de la imagen. El Dockerfile,
   `nginx.conf` y `docker-compose.yml` están escritos y revisados a mano, y el
