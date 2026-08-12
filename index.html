@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/src/estilos/componentes.css" />
   </head>
   <body>
-    <div class="app">
+    <div id="app" class="app">
       <header class="cabecera">
         <input id="titulo" class="titulo" value="Sorteo de premios" aria-label="Título del sorteo" />
       </header>
@@ -57,9 +57,14 @@
           </div>
 
           <button id="btnGirar" class="boton-girar" type="button">Girar la ruleta</button>
-          <button id="btnSilencio" class="boton-silencio" type="button" aria-pressed="false">
-            🔊 Sonido
-          </button>
+          <div class="fila">
+            <button id="btnSilencio" class="boton-silencio" type="button" aria-pressed="false">
+              🔊 Sonido
+            </button>
+            <button id="btnProyeccion" class="boton-silencio" type="button" aria-pressed="false">
+              🖥 Proyección
+            </button>
+          </div>
           <p id="estadoPozo" class="estado"></p>
 
           <h2>Historial</h2>

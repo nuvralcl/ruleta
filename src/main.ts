@@ -8,6 +8,7 @@ import { crearConfeti } from './vista/confeti';
 import { crearHistorial } from './vista/historial';
 import { crearMarquesina } from './vista/marquesina';
 import { crearPanel } from './vista/panel';
+import { crearProyeccion } from './vista/proyeccion';
 import { crearRuleta } from './vista/ruleta';
 
 const PARTICIPANTES_EJEMPLO = [
@@ -41,7 +42,13 @@ const confeti = crearConfeti(canvasConfeti);
 const marquesina = crearMarquesina(marcoMarquesina);
 const historial = crearHistorial(elemento<HTMLOListElement>('historial'));
 const codigoActaEl = elemento<HTMLElement>('codigoActa');
+const btnProyeccion = elemento<HTMLButtonElement>('btnProyeccion');
 const sintetizador = crearSintetizador();
+const proyeccion = crearProyeccion(elemento('app'), (activo) => {
+  btnProyeccion.setAttribute('aria-pressed', String(activo));
+  btnProyeccion.textContent = activo ? '🖥 Salir de proyección' : '🖥 Proyección';
+  ruleta.ajustarTamano();
+});
 const anuncio = crearAnuncio({
   overlay: elemento('anuncioOverlay'),
   puesto: elemento('anuncioPuesto'),
@@ -162,11 +169,21 @@ window.addEventListener('resize', () => {
   ruleta.ajustarTamano();
 });
 
+btnProyeccion.addEventListener('click', () => {
+  proyeccion.alternar();
+});
+
 document.addEventListener('keydown', (evento) => {
-  if (evento.code !== 'Space') return;
   if (panel.elementoActivoEsCampo()) return;
-  evento.preventDefault();
-  empezarGiro();
+  if (evento.code === 'Space') {
+    evento.preventDefault();
+    empezarGiro();
+    return;
+  }
+  if (evento.key.toLowerCase() === 'f') {
+    evento.preventDefault();
+    proyeccion.alternar();
+  }
 });
 
 panel.establecerTextoParticipantes(PARTICIPANTES_EJEMPLO);

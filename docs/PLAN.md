@@ -161,11 +161,13 @@ esparcidos por la UI.
       canvas fuera de pantalla (`capaRotable` en `vista/ruleta.ts`) y cada
       frame solo se rota y se pega con `drawImage`.
 
-### ⬜ T2.2 — Modo proyección
-- [ ] Tecla `F` o botón: oculta el panel, ruleta centrada al máximo, tipografía
-      del anuncio escalada a la altura de la ventana.
-- [ ] Funciona con `requestFullscreen` y también sin él.
-- [ ] Título del sorteo editable, visible en modo proyección.
+### ✅ T2.2 — Modo proyección
+- [x] Tecla `F` o botón: oculta el panel, ruleta centrada al máximo, tipografía
+      del anuncio escalada a la altura de la ventana (`vista/proyeccion.ts`).
+- [x] Funciona con `requestFullscreen` y también sin él (si la API no existe o
+      la promesa rechaza, el modo proyección por CSS igual queda activo).
+- [x] Título del sorteo editable, visible en modo proyección (vive fuera de
+      `.panel`, que es lo único que se oculta).
 
 ### ⬜ T2.3 — Accesibilidad y teclado
 - [ ] Barra espaciadora gira, salvo con foco en un campo de texto.

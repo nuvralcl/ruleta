@@ -40,7 +40,8 @@
   gap: 12px;
 }
 
-.fila > div {
+.fila > div,
+.fila > button {
   flex: 1;
 }
 
@@ -137,6 +138,8 @@
   position: relative;
   width: min(600px, 90vw);
   aspect-ratio: 1;
+  align-self: center;
+  flex-shrink: 0;
 }
 
 .marquesina {
@@ -325,4 +328,34 @@
   .escenario {
     padding-top: 4px;
   }
+}
+
+.modo-proyeccion .panel {
+  display: none;
+}
+
+.modo-proyeccion .cuerpo {
+  min-height: 90vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.modo-proyeccion .escenario {
+  padding-top: 0;
+}
+
+.modo-proyeccion .marco-ruleta {
+  width: min(92vw, 92vh);
+}
+
+.modo-proyeccion .titulo {
+  font-size: clamp(2rem, 6vw, 4rem);
+}
+
+.modo-proyeccion .anuncio-puesto {
+  font-size: clamp(1.2rem, 4vh, 2.5rem);
+}
+
+.modo-proyeccion .anuncio-nombre {
+  font-size: clamp(3rem, 14vh, 9rem);
 }
