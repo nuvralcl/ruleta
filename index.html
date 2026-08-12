@@ -56,6 +56,11 @@
             </select>
           </div>
 
+          <div>
+            <label for="premios">Premios (uno por línea, en orden: 1er lugar, 2do, ...)</label>
+            <textarea id="premios" placeholder="Ej: Notebook&#10;Audífonos&#10;Vale de compra"></textarea>
+          </div>
+
           <div class="fila">
             <div>
               <label for="logoOrganizador">Logo (centro de la ruleta)</label>
@@ -142,6 +147,7 @@
       <div class="anuncio-ticket" role="dialog" aria-modal="true" aria-labelledby="anuncioNombre">
         <p class="anuncio-puesto" id="anuncioPuesto"></p>
         <h2 class="anuncio-nombre" id="anuncioNombre"></h2>
+        <p class="anuncio-premio" id="anuncioPremio" hidden></p>
         <button id="btnCerrarAnuncio" class="boton-cerrar" type="button">Cerrar (Esc)</button>
       </div>
     </div>

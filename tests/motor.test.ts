@@ -22,7 +22,7 @@ function azarFijo(indice: number): Azar {
 }
 
 function configBase(overrides: Partial<Config> = {}): Config {
-  return { cantidadGanadores: 1, modo: 'lote', repeticion: 'sin', ...overrides };
+  return { cantidadGanadores: 1, modo: 'lote', repeticion: 'sin', premios: [], ...overrides };
 }
 
 // PRNG determinista solo para los tests (no forma parte de nucleo/azar.ts;
@@ -201,6 +201,57 @@ describe('girar — modo continuo', () => {
       estado = resultado.estado;
     }
     expect(estado.historial).toHaveLength(5);
+  });
+});
+
+describe('premios por puesto', () => {
+  it('modo lote: cada ganador recibe el premio de su posición', () => {
+    const participantes = crearParticipantes(['Ana', 'Beto', 'Caro']);
+    let estado = crearRonda(
+      configBase({ cantidadGanadores: 3, premios: ['Notebook', 'Audífonos', 'Vale'] }),
+      participantes,
+    );
+    const premios: (string | undefined)[] = [];
+    for (let i = 0; i < 3; i += 1) {
+      const resultado = girar(estado, azarFijo(0), AHORA)!;
+      premios.push(resultado.premio);
+      estado = resultado.estado;
+    }
+    expect(premios).toEqual(['Notebook', 'Audífonos', 'Vale']);
+    expect(estado.historial.map((g) => g.premio)).toEqual(['Notebook', 'Audífonos', 'Vale']);
+  });
+
+  it('modo continuo: el premio también sigue la posición dentro del historial', () => {
+    const participantes = crearParticipantes(['Ana', 'Beto']);
+    let estado = crearRonda(
+      configBase({ modo: 'continuo', repeticion: 'con', premios: ['1er premio', '2do premio'] }),
+      participantes,
+    );
+    const primero = girar(estado, azarFijo(0), AHORA)!;
+    expect(primero.premio).toBe('1er premio');
+    estado = primero.estado;
+    const segundo = girar(estado, azarFijo(0), AHORA)!;
+    expect(segundo.premio).toBe('2do premio');
+  });
+
+  it('sin lista de premios, o pasada la última posición, no hay premio', () => {
+    const participantes = crearParticipantes(['Ana', 'Beto']);
+    let estado = crearRonda(configBase({ cantidadGanadores: 2, premios: ['Único premio'] }), participantes);
+    const primero = girar(estado, azarFijo(0), AHORA)!;
+    expect(primero.premio).toBe('Único premio');
+    estado = primero.estado;
+    const segundo = girar(estado, azarFijo(0), AHORA)!;
+    expect(segundo.premio).toBeUndefined();
+  });
+
+  it('líneas vacías en la lista de premios cuentan como "sin premio" para esa posición', () => {
+    const participantes = crearParticipantes(['Ana', 'Beto']);
+    let estado = crearRonda(configBase({ cantidadGanadores: 2, premios: ['', 'Segundo'] }), participantes);
+    const primero = girar(estado, azarFijo(0), AHORA)!;
+    expect(primero.premio).toBeUndefined();
+    estado = primero.estado;
+    const segundo = girar(estado, azarFijo(0), AHORA)!;
+    expect(segundo.premio).toBe('Segundo');
   });
 });
 

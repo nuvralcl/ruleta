@@ -35,6 +35,10 @@
   font-family: inherit;
 }
 
+.panel textarea#premios {
+  min-height: 70px;
+}
+
 .panel input[type='color'] {
   padding: 4px;
   height: 40px;
@@ -315,6 +319,13 @@
   font-size: clamp(1.6rem, 5vw, 2.4rem);
 }
 
+.anuncio-premio {
+  margin: -12px 0 20px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
 .boton-cerrar {
   background: var(--color-panel);
   color: var(--color-ticket);
@@ -369,4 +380,8 @@
 
 .modo-proyeccion .anuncio-nombre {
   font-size: clamp(3rem, 14vh, 9rem);
+}
+
+.modo-proyeccion .anuncio-premio {
+  font-size: clamp(1.4rem, 5vh, 3rem);
 }

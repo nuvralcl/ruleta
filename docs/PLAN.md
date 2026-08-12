@@ -240,9 +240,17 @@ cada punto, más el cálculo formal de contraste.
       navegador con un participante en `x5` ocupando más de la mitad del
       círculo, y el giro cae exactamente en su segmento.
 
-### ⬜ T3.4 — Premios por puesto
-- [ ] Lista de premios editable; el anuncio muestra el premio del puesto.
-- [ ] Los premios salen en el CSV y en el acta.
+### ✅ T3.4 — Premios por puesto
+- [x] Lista de premios editable (textarea en el panel, uno por línea, en
+      orden de puesto); `Config.premios` se pasa a `girar()` y cada `Ganador`
+      queda con su `premio` correspondiente a la posición (`calcularPremio`
+      en `nucleo/motor.ts`). El anuncio muestra el premio bajo el nombre del
+      ganador (`vista/anuncio.ts`), también en `aria-live`.
+- [x] Los premios salen en el CSV/JSON (`vista/historial.ts`) y en el
+      historial guardado en `localStorage`. ~~En el acta~~: `nucleo/acta.ts`
+      es el hash de verificación de la lista+semilla, no una vista del
+      sorteo — los premios aparecerán cuando exista una vista de acta
+      imprimible en T4.2.
 
 ---
 
@@ -307,6 +315,10 @@ _Claude Code anota acá lo que encuentre y no corresponda arreglar en la tarea e
   que muestre el historial guardado entre sesiones — probablemente el lugar
   natural es T4.2 (acta del sorteo) o una vista propia de "historial
   completo".
+- (T3.4) Cuando se construya la vista imprimible de T4.2, tiene que incluir
+  la columna de premios (ya está en `Ganador.premio` y en el historial
+  guardado) — no es automático, hay que acordarse de sumarla al armar esa
+  tarea.
 - (T0.3) **Docker sin instalar en esta máquina** — no se pudo correr
   `docker compose up --build` ni medir el tamaño de la imagen. El Dockerfile,
   `nginx.conf` y `docker-compose.yml` están escritos y revisados a mano, y el

@@ -70,6 +70,7 @@ const anuncio = crearAnuncio({
   overlay: elemento('anuncioOverlay'),
   puesto: elemento('anuncioPuesto'),
   nombre: elemento('anuncioNombre'),
+  premio: elemento('anuncioPremio'),
   btnCerrar: elemento('btnCerrarAnuncio'),
   vivo: elemento('vivoGanador'),
 });
@@ -79,7 +80,7 @@ const prefiereMovimientoReducido = window.matchMedia('(prefers-reduced-motion: r
 let girando = false;
 const parseoInicial = parseParticipantes(PARTICIPANTES_EJEMPLO);
 let estado = crearRonda(
-  { cantidadGanadores: 1, modo: 'lote', repeticion: 'sin' },
+  { cantidadGanadores: 1, modo: 'lote', repeticion: 'sin', premios: [] },
   parseoInicial.participantes,
 );
 
@@ -94,6 +95,7 @@ const panel = crearPanel(
     inputCantidad: elemento('cantidad'),
     selectModo: elemento('modo'),
     selectRepeticion: elemento('repeticion'),
+    textareaPremios: elemento('premios'),
     btnGirar: elemento('btnGirar'),
     btnSilencio: elemento('btnSilencio'),
     estadoPozo: elemento('estadoPozo'),
@@ -166,6 +168,7 @@ function empezarGiro(): void {
         {
           nombre: resultado.ganador.nombre,
           puesto: resultado.puestoTexto,
+          premio: resultado.premio ?? null,
           hora: new Date().toISOString(),
           ronda: estado.rondaNumero,
         },
@@ -178,7 +181,7 @@ function empezarGiro(): void {
 
       sintetizador.sonidoGanador();
       if (!prefiereMovimientoReducido) confeti.disparar();
-      anuncio.mostrar(resultado.ganador, resultado.puestoTexto);
+      anuncio.mostrar(resultado.ganador, resultado.puestoTexto, resultado.premio);
 
       actualizarPozoYDibujo();
       if (resultado.rondaTerminada) {

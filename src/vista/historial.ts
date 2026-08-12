@@ -5,7 +5,9 @@ export function crearHistorial(lista: HTMLOListElement) {
     lista.innerHTML = '';
     for (const entrada of [...entradas].reverse()) {
       const li = document.createElement('li');
-      li.textContent = `${entrada.puesto} — ${entrada.participante.nombre}`;
+      li.textContent = entrada.premio
+        ? `${entrada.puesto} — ${entrada.participante.nombre} (${entrada.premio})`
+        : `${entrada.puesto} — ${entrada.participante.nombre}`;
       lista.appendChild(li);
     }
   }
@@ -20,11 +22,12 @@ function escaparCampoCSV(valor: string): string {
 }
 
 export function exportarHistorialCSV(entradas: Ganador[]): string {
-  const encabezado = ['ronda', 'puesto', 'nombre', 'correo', 'fono', 'hora'];
+  const encabezado = ['ronda', 'puesto', 'nombre', 'premio', 'correo', 'fono', 'hora'];
   const filas = entradas.map((g) => [
     String(g.ronda),
     g.puesto,
     g.participante.nombre,
+    g.premio ?? '',
     g.participante.correo ?? '',
     g.participante.fono ?? '',
     g.hora.toISOString(),
@@ -38,6 +41,7 @@ export function exportarHistorialJSON(entradas: Ganador[]): string {
       ronda: g.ronda,
       puesto: g.puesto,
       nombre: g.participante.nombre,
+      premio: g.premio ?? null,
       correo: g.participante.correo ?? null,
       fono: g.participante.fono ?? null,
       hora: g.hora.toISOString(),

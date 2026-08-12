@@ -11,6 +11,7 @@ export type ListaGuardada = {
 export type EntradaHistorialGuardada = {
   nombre: string;
   puesto: string;
+  premio: string | null;
   hora: string;
   ronda: number;
 };

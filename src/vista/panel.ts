@@ -10,6 +10,7 @@ export type ElementosPanel = {
   inputCantidad: HTMLInputElement;
   selectModo: HTMLSelectElement;
   selectRepeticion: HTMLSelectElement;
+  textareaPremios: HTMLTextAreaElement;
   btnGirar: HTMLButtonElement;
   btnSilencio: HTMLButtonElement;
   estadoPozo: HTMLElement;
@@ -34,6 +35,7 @@ export function crearPanel(elementos: ElementosPanel, callbacks: CallbacksPanel)
     inputCantidad,
     selectModo,
     selectRepeticion,
+    textareaPremios,
     btnGirar,
     btnSilencio,
     estadoPozo,
@@ -48,12 +50,16 @@ export function crearPanel(elementos: ElementosPanel, callbacks: CallbacksPanel)
   selectRepeticion.addEventListener('change', callbacks.alCambiarConfig);
   selectModo.addEventListener('change', callbacks.alCambiarConfig);
   inputCantidad.addEventListener('change', callbacks.alCambiarConfig);
+  textareaPremios.addEventListener('input', callbacks.alCambiarConfig);
 
   function obtenerConfig(): Config {
     return {
       cantidadGanadores: Number(inputCantidad.value) || 1,
       modo: selectModo.value === 'continuo' ? 'continuo' : 'lote',
       repeticion: selectRepeticion.value === 'con' ? 'con' : 'sin',
+      premios: textareaPremios.value
+        .split(/\r?\n/)
+        .map((linea) => linea.trim()),
     };
   }
 

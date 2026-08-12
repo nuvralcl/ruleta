@@ -14,11 +14,14 @@ export type Config = {
   cantidadGanadores: number;
   modo: ModoRonda;
   repeticion: Repeticion;
+  /** Premios por posición dentro de la ronda (0 = 1er lugar). Vacío = sin premios. */
+  premios: string[];
 };
 
 export type Ganador = {
   participante: Participante;
   puesto: string;
+  premio?: string;
   hora: Date;
   ronda: number;
 };

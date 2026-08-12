@@ -9,7 +9,7 @@ function crearParticipantes(nombres: string[]): Participante[] {
 }
 
 const AHORA = new Date('2026-01-01T00:00:00Z');
-const CONFIG: Config = { cantidadGanadores: 1, modo: 'continuo', repeticion: 'con' };
+const CONFIG: Config = { cantidadGanadores: 1, modo: 'continuo', repeticion: 'con', premios: [] };
 
 describe('crearActa', () => {
   it('produce un hash SHA-256 (64 caracteres hex) y un código corto', async () => {

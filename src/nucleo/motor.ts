@@ -66,10 +66,18 @@ function calcularPuestoTexto(estado: EstadoRonda): string {
   return `GANADOR ${numero}`;
 }
 
+function calcularPremio(estado: EstadoRonda): string | undefined {
+  const posicion =
+    estado.config.modo === 'lote' ? estado.ganadoresRondaActual.length : estado.historial.length;
+  const premio = estado.config.premios[posicion];
+  return premio && premio.trim() !== '' ? premio : undefined;
+}
+
 export type ResultadoGiro = {
   estado: EstadoRonda;
   ganador: Participante;
   puestoTexto: string;
+  premio?: string;
   rondaTerminada: boolean;
   rondaTerminadaAntes: boolean;
 };
@@ -80,9 +88,11 @@ export function girar(estado: EstadoRonda, azar: Azar, ahora: Date): ResultadoGi
 
   const { participante: participanteGanador } = elegirPorPeso(pozo, azar);
   const puestoTexto = calcularPuestoTexto(estado);
+  const premio = calcularPremio(estado);
   const ganador: Ganador = {
     participante: participanteGanador,
     puesto: puestoTexto,
+    premio,
     hora: ahora,
     ronda: estado.rondaNumero,
   };
@@ -120,7 +130,14 @@ export function girar(estado: EstadoRonda, azar: Azar, ahora: Date): ResultadoGi
     rondaNumero: rondaNumeroSiguiente,
   };
 
-  return { estado: nuevoEstado, ganador: participanteGanador, puestoTexto, rondaTerminada, rondaTerminadaAntes };
+  return {
+    estado: nuevoEstado,
+    ganador: participanteGanador,
+    puestoTexto,
+    premio,
+    rondaTerminada,
+    rondaTerminadaAntes,
+  };
 }
 
 export function actualizarParticipantes(
