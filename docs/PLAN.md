@@ -256,12 +256,21 @@ cada punto, más el cálculo formal de contraste.
 
 ## Fase 4 — Confianza
 
-### ⬜ T4.1 — Privacidad (ver `docs/PRIVACIDAD.md`)
-- [ ] Aviso de privacidad accesible desde el pie.
-- [ ] Minimización: no persistir correo ni teléfono salvo que el organizador lo
-      active explícitamente (casilla desmarcada por defecto).
-- [ ] Borrado efectivo y exportación de datos en formato estructurado.
-- [ ] Cero datos personales en logs, URLs o mensajes de error.
+### ✅ T4.1 — Privacidad (ver `docs/PRIVACIDAD.md`)
+- [x] Aviso de privacidad accesible desde el pie (botón "Aviso de
+      privacidad" → modal con trampa de foco y `Esc`, oculto en modo
+      proyección).
+- [x] Minimización: casilla "Guardar también correo y teléfono..."
+      **desmarcada por defecto** junto a "Listas guardadas" — sin marcarla,
+      `guardarLista` solo persiste nombres. Probado en el navegador en ambos
+      sentidos.
+- [x] Borrado efectivo: "Borrar todos los datos" ahora limpia `localStorage`
+      **y** el estado en memoria (participantes, historial en pantalla,
+      ronda) — no solo la persistencia, tal como pide la regla 3 de
+      `docs/PRIVACIDAD.md`. Exportación ya existía (T3.2, CSV/JSON).
+- [x] Cero datos personales en logs/URLs/errores: no hay ningún `console.*`
+      en `src/` (`grep -rn "console\." src/` sin resultados); no se
+      construye ninguna URL con datos de participantes.
 
 ### ⬜ T4.2 — Acta del sorteo
 - [ ] Vista imprimible: fecha, título, cantidad de participantes, hash de la

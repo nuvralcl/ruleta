@@ -262,12 +262,45 @@ document.addEventListener('keydown', (evento) => {
   }
 });
 
+const overlayPrivacidad = elemento<HTMLElement>('avisoPrivacidadOverlay');
+const btnAvisoPrivacidad = elemento<HTMLButtonElement>('btnAvisoPrivacidad');
+const btnCerrarAvisoPrivacidad = elemento<HTMLButtonElement>('btnCerrarAvisoPrivacidad');
+let focoPrevioPrivacidad: HTMLElement | null = null;
+
+function manejarTeclaPrivacidad(evento: KeyboardEvent): void {
+  if (evento.key === 'Escape') {
+    cerrarAvisoPrivacidad();
+    return;
+  }
+  if (evento.key === 'Tab') {
+    evento.preventDefault();
+    btnCerrarAvisoPrivacidad.focus();
+  }
+}
+
+function abrirAvisoPrivacidad(): void {
+  overlayPrivacidad.hidden = false;
+  focoPrevioPrivacidad = document.activeElement as HTMLElement | null;
+  btnCerrarAvisoPrivacidad.focus();
+  document.addEventListener('keydown', manejarTeclaPrivacidad);
+}
+
+function cerrarAvisoPrivacidad(): void {
+  overlayPrivacidad.hidden = true;
+  document.removeEventListener('keydown', manejarTeclaPrivacidad);
+  focoPrevioPrivacidad?.focus();
+}
+
+btnAvisoPrivacidad.addEventListener('click', abrirAvisoPrivacidad);
+btnCerrarAvisoPrivacidad.addEventListener('click', cerrarAvisoPrivacidad);
+
 const inputNombreLista = elemento<HTMLInputElement>('nombreLista');
 const selectListasGuardadas = elemento<HTMLSelectElement>('listasGuardadas');
 const btnGuardarLista = elemento<HTMLButtonElement>('btnGuardarLista');
 const btnCargarLista = elemento<HTMLButtonElement>('btnCargarLista');
 const btnEliminarLista = elemento<HTMLButtonElement>('btnEliminarLista');
 const btnBorrarTodo = elemento<HTMLButtonElement>('btnBorrarTodo');
+const inputGuardarContacto = elemento<HTMLInputElement>('guardarContacto');
 const avisoGuardadoEl = elemento<HTMLElement>('avisoGuardado');
 const textoGuardadoEl = elemento<HTMLElement>('textoGuardado');
 
@@ -300,8 +333,14 @@ btnGuardarLista.addEventListener('click', () => {
     mostrarAvisoGuardado('Ponle un nombre a la lista antes de guardar.');
     return;
   }
-  const nombres = estado.participantes.map((p) => p.nombre);
-  const ok = guardarLista(nombre, nombres);
+  const lineas = estado.participantes.map((p) => {
+    if (!inputGuardarContacto.checked) return p.nombre;
+    const campos = [p.nombre];
+    if (p.correo) campos.push(p.correo);
+    if (p.fono) campos.push(p.fono);
+    return campos.join(', ');
+  });
+  const ok = guardarLista(nombre, lineas);
   if (ok) {
     refrescarListasGuardadas();
     mostrarAvisoGuardado(`Lista "${nombre}" guardada en este navegador.`);
@@ -330,12 +369,22 @@ btnEliminarLista.addEventListener('click', () => {
 
 btnBorrarTodo.addEventListener('click', () => {
   const confirmado = window.confirm(
-    'Esto borra todas las listas guardadas y el historial de este navegador. ¿Continuar?',
+    'Esto borra todas las listas guardadas, el historial de este navegador y ' +
+      'los participantes que tengas escritos ahora. ¿Continuar?',
   );
   if (!confirmado) return;
+
   borrarTodo();
   refrescarListasGuardadas();
-  mostrarAvisoGuardado('Todos los datos guardados en este navegador se borraron.');
+
+  // Borrado real: también se limpia el estado en memoria, no solo localStorage.
+  panel.establecerTextoParticipantes('');
+  procesarTextoParticipantes('');
+  estado = crearRonda(estado.config, [], null);
+  historial.renderizar(estado.historial);
+  actualizarPozoYDibujo();
+
+  mostrarAvisoGuardado('Se borraron todos los datos guardados y los que estaban en memoria.');
 });
 
 refrescarListasGuardadas();

@@ -17,6 +17,26 @@
   margin-bottom: 4px;
 }
 
+.casilla {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.casilla input[type='checkbox'] {
+  width: auto;
+  height: auto;
+  margin-top: 3px;
+  padding: 0;
+  border: none;
+  background: none;
+  accent-color: var(--color-acento);
+}
+
+.casilla label {
+  margin-bottom: 0;
+}
+
 .panel textarea,
 .panel input,
 .panel select {
@@ -333,6 +353,42 @@
   border-radius: 8px;
   padding: 8px 16px;
   font-weight: 600;
+}
+
+.pie {
+  text-align: center;
+  padding: 24px 0 8px;
+}
+
+.enlace-pie {
+  background: none;
+  border: none;
+  color: var(--color-texto-tenue);
+  text-decoration: underline;
+  font-size: 0.85rem;
+  padding: 4px;
+}
+
+.privacidad-ticket {
+  max-width: min(520px, 90vw);
+  text-align: left;
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.privacidad-ticket h2 {
+  margin-top: 0;
+  color: var(--color-panel);
+}
+
+.privacidad-texto p {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.modo-proyeccion .pie {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

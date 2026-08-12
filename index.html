@@ -102,8 +102,15 @@
           <h2>Listas guardadas</h2>
           <p class="estado">
             Estos datos quedan guardados en este navegador; no se suben a
-            ningún servidor. No se guardan correos ni teléfonos.
+            ningún servidor.
           </p>
+          <div class="casilla">
+            <input id="guardarContacto" type="checkbox" />
+            <label for="guardarContacto">
+              Guardar también correo y teléfono en las listas que guarde
+              (desmarcado por defecto: solo se guardan nombres)
+            </label>
+          </div>
           <div>
             <label for="nombreLista">Nombre de la lista</label>
             <input id="nombreLista" type="text" placeholder="Ej: Fiesta de fin de año" />
@@ -139,6 +146,54 @@
           </div>
         </section>
       </main>
+
+      <footer class="pie">
+        <button id="btnAvisoPrivacidad" class="enlace-pie" type="button">
+          Aviso de privacidad
+        </button>
+      </footer>
+    </div>
+
+    <div id="avisoPrivacidadOverlay" class="anuncio-overlay" hidden>
+      <div
+        class="anuncio-ticket privacidad-ticket"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tituloAvisoPrivacidad"
+      >
+        <h2 id="tituloAvisoPrivacidad">Aviso de privacidad</h2>
+        <div class="privacidad-texto">
+          <p>
+            Esta app trata nombres y, si los pegaste, correos y teléfonos de
+            los participantes. Se usan solo para elegir ganadores y mostrar
+            el resultado — no para ningún otro fin.
+          </p>
+          <p>
+            Todo el procesamiento ocurre en tu navegador. Nada se envía a un
+            servidor: el sitio es estático, sin cuentas, sin cookies de
+            seguimiento y sin terceros.
+          </p>
+          <p>
+            Los datos viven en la memoria de la pestaña mientras dura el
+            sorteo. Si guardas una lista, queda en el
+            <code>localStorage</code> de este navegador — por defecto solo el
+            nombre, salvo que marques la casilla para incluir también correo
+            y teléfono. El botón "Borrar todos los datos" los elimina de
+            verdad, sin copias ocultas.
+          </p>
+          <p>
+            Puedes exportar los ganadores en CSV o JSON en cualquier momento.
+          </p>
+          <p>
+            Quien organiza el sorteo es responsable de tener autorización
+            para usar esta lista de personas; la app solo entrega las
+            herramientas para minimizar, exportar y borrar los datos.
+          </p>
+        </div>
+        <button id="btnCerrarAvisoPrivacidad" class="boton-cerrar" type="button">
+          Cerrar (Esc)
+        </button>
+      </div>
     </div>
 
     <canvas id="confeti" class="confeti"></canvas>
