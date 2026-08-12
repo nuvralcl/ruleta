@@ -14,3 +14,35 @@ export function crearHistorial(lista: HTMLOListElement) {
 }
 
 export type Historial = ReturnType<typeof crearHistorial>;
+
+function escaparCampoCSV(valor: string): string {
+  return /[",\r\n]/.test(valor) ? `"${valor.replace(/"/g, '""')}"` : valor;
+}
+
+export function exportarHistorialCSV(entradas: Ganador[]): string {
+  const encabezado = ['ronda', 'puesto', 'nombre', 'correo', 'fono', 'hora'];
+  const filas = entradas.map((g) => [
+    String(g.ronda),
+    g.puesto,
+    g.participante.nombre,
+    g.participante.correo ?? '',
+    g.participante.fono ?? '',
+    g.hora.toISOString(),
+  ]);
+  return [encabezado, ...filas].map((fila) => fila.map(escaparCampoCSV).join(',')).join('\r\n');
+}
+
+export function exportarHistorialJSON(entradas: Ganador[]): string {
+  return JSON.stringify(
+    entradas.map((g) => ({
+      ronda: g.ronda,
+      puesto: g.puesto,
+      nombre: g.participante.nombre,
+      correo: g.participante.correo ?? null,
+      fono: g.participante.fono ?? null,
+      hora: g.hora.toISOString(),
+    })),
+    null,
+    2,
+  );
+}

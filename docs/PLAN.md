@@ -215,11 +215,18 @@ cada punto, más el cálculo formal de contraste.
       `false` si `localStorage.setItem` falla (try/catch), y la UI muestra un
       aviso en vez de romperse.
 
-### ⬜ T3.2 — Importar y exportar
-- [ ] Importar CSV y XLSX (evaluar SheetJS: **DECISIÓN PENDIENTE**, es la única
-      dependencia que valdría la pena).
-- [ ] Selector de columna para nombre / correo / teléfono.
-- [ ] Exportar ganadores a CSV y JSON.
+### 🟨 T3.2 — Importar y exportar
+- [ ] ~~Importar CSV y XLSX~~ — **DECISIÓN TOMADA (2026-08-12): por ahora no.**
+      El usuario pidió quedarse solo con pegado a mano por el momento, así que
+      no se instaló SheetJS ni ninguna otra dependencia. Queda para retomar
+      cuando haga falta.
+- [ ] ~~Selector de columna para nombre / correo / teléfono~~ — depende de la
+      importación de archivos, queda pendiente junto con el punto anterior.
+- [x] Exportar ganadores a CSV y JSON (`vista/historial.ts`:
+      `exportarHistorialCSV` / `exportarHistorialJSON`, botones en el panel).
+      Sin dependencias nuevas — `Blob` + `<a download>`. Incluye correo/fono
+      del ganador si el organizador los pegó (a diferencia de lo que se
+      guarda en `localStorage`, que nunca los incluye).
 
 ### ⬜ T3.3 — Tickets por participante
 - [ ] Sintaxis `Nombre, correo, x3` o columna de tickets al importar.

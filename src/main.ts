@@ -12,7 +12,7 @@ import { LIMITE_LINEAS, parseParticipantes, quitarDuplicados } from './nucleo/pa
 import { crearSintetizador } from './audio/sintetizador';
 import { crearAnuncio } from './vista/anuncio';
 import { crearConfeti } from './vista/confeti';
-import { crearHistorial } from './vista/historial';
+import { crearHistorial, exportarHistorialCSV, exportarHistorialJSON } from './vista/historial';
 import { crearMarquesina } from './vista/marquesina';
 import { crearPanel } from './vista/panel';
 import { crearProyeccion } from './vista/proyeccion';
@@ -37,6 +37,16 @@ function elemento<T extends Element>(id: string): T {
   const el = document.getElementById(id);
   if (!el) throw new Error(`No se encontró el elemento #${id}`);
   return el as unknown as T;
+}
+
+function descargarArchivo(contenido: string, nombreArchivo: string, tipoMime: string): void {
+  const blob = new Blob([contenido], { type: tipoMime });
+  const url = URL.createObjectURL(blob);
+  const enlace = document.createElement('a');
+  enlace.href = url;
+  enlace.download = nombreArchivo;
+  enlace.click();
+  URL.revokeObjectURL(url);
 }
 
 const canvasRuleta = elemento<HTMLCanvasElement>('ruleta');
@@ -222,6 +232,18 @@ const inputColorAcento = elemento<HTMLInputElement>('colorAcento');
 inputColorAcento.addEventListener('input', () => {
   document.documentElement.style.setProperty('--color-acento', inputColorAcento.value);
   ruleta.establecerColorAcento(inputColorAcento.value);
+});
+
+elemento<HTMLButtonElement>('btnExportarCSV').addEventListener('click', () => {
+  descargarArchivo(exportarHistorialCSV(estado.historial), 'ganadores.csv', 'text/csv;charset=utf-8');
+});
+
+elemento<HTMLButtonElement>('btnExportarJSON').addEventListener('click', () => {
+  descargarArchivo(
+    exportarHistorialJSON(estado.historial),
+    'ganadores.json',
+    'application/json;charset=utf-8',
+  );
 });
 
 document.addEventListener('keydown', (evento) => {
