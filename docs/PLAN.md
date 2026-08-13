@@ -298,6 +298,39 @@ verificación del acta · borrado automático por retención.
 
 ---
 
+## Fase 6 — Estadísticas de uso (2026-08-13, fuera del backlog original)
+
+**No es la Fase 5.** Es un backend chico y separado, sin datos de
+participantes, pedido explícitamente por el dueño del proyecto para ver
+actividad real de la app (no solo tráfico). Análisis de riesgo propio, ver
+`docs/PRIVACIDAD.md`.
+
+### ✅ T6.1 — Servidor de estadísticas con dashboard con contraseña
+- [x] `servidor-estadisticas/`: Node + TypeScript, `node:http` nativo, cero
+      dependencias de runtime. `POST /eventos` (con CORS restringido al
+      dominio de la tombola, límite de tasa en memoria, validación estricta
+      de forma — nunca persiste el body tal cual llegó). `GET /dashboard`
+      con Basic Auth (`timingSafeEqual`, backoff tras intentos fallidos).
+      `GET /salud` sin auth para healthchecks.
+- [x] Dos tipos de evento para no ensuciar el promedio de participantes:
+      `ronda_iniciada` (una vez por ronda, con el tamaño real del pozo al
+      abrir) y `giro` (uno por cada giro, sin conteo). Ver `src/main.ts`,
+      variables `rondaReportada`/`reportarEvento`.
+- [x] Almacenamiento en NDJSON (`datos/eventos.ndjson`), sin base de datos —
+      de sobra para el volumen esperado. El dashboard calcula los agregados
+      al leer el archivo.
+- [x] El frontend manda el evento por `fetch` *best-effort* (timeout de 3s,
+      `.catch` silencioso): probado en el navegador que el sorteo funciona
+      igual con el servidor de estadísticas apagado.
+- [x] Documentado en `docs/PRIVACIDAD.md`, `CLAUDE.md` y `docs/DEPLOY.md`.
+
+**Pendiente de confirmar por el usuario, no bloquea el uso local:**
+- Si el plan de Dokploy del usuario soporta volúmenes persistentes. Si no,
+  cada redeploy de `servidor-estadisticas` borra el historial guardado — es
+  una limitación conocida, no un bug, hasta que se confirme.
+
+---
+
 ## Decisiones pendientes
 
 | # | Pregunta | Por defecto si no se decide |

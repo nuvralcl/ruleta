@@ -49,6 +49,27 @@ function descargarArchivo(contenido: string, nombreArchivo: string, tipoMime: st
   URL.revokeObjectURL(url);
 }
 
+const URL_ESTADISTICAS = import.meta.env.VITE_URL_ESTADISTICAS;
+
+/**
+ * Reporta un conteo anónimo de uso (nunca nombres/correos/teléfonos) al
+ * servicio de estadísticas, si está configurado. Best-effort: un error o
+ * timeout acá nunca debe afectar el sorteo.
+ */
+function reportarEvento(evento: Record<string, unknown>): void {
+  if (!URL_ESTADISTICAS) return;
+  const controlador = new AbortController();
+  const limite = setTimeout(() => controlador.abort(), 3000);
+  fetch(URL_ESTADISTICAS, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(evento),
+    signal: controlador.signal,
+  })
+    .catch(() => {})
+    .finally(() => clearTimeout(limite));
+}
+
 const canvasRuleta = elemento<HTMLCanvasElement>('ruleta');
 const canvasConfeti = elemento<HTMLCanvasElement>('confeti');
 const marcoMarquesina = elemento<HTMLElement>('marquesina');
@@ -78,6 +99,7 @@ const anuncio = crearAnuncio({
 const prefiereMovimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let girando = false;
+let rondaReportada = false;
 const parseoInicial = parseParticipantes(PARTICIPANTES_EJEMPLO);
 let estado = crearRonda(
   { cantidadGanadores: 1, modo: 'lote', repeticion: 'sin', premios: [] },
@@ -147,6 +169,16 @@ function empezarGiro(): void {
 
   const indiceGanador = pozoAlGirar.findIndex((p) => p.id === resultado.ganador.id);
 
+  if (!rondaReportada) {
+    rondaReportada = true;
+    reportarEvento({
+      tipo: 'ronda_iniciada',
+      participantes: pozoAlGirar.length,
+      modo: estado.config.modo,
+      repeticion: estado.config.repeticion,
+    });
+  }
+
   girando = true;
   panel.habilitarGirar(false);
   marquesina.marcarGirando(true);
@@ -182,6 +214,7 @@ function empezarGiro(): void {
       sintetizador.sonidoGanador();
       if (!prefiereMovimientoReducido) confeti.disparar();
       anuncio.mostrar(resultado.ganador, resultado.puestoTexto, resultado.premio);
+      reportarEvento({ tipo: 'giro' });
 
       actualizarPozoYDibujo();
       if (resultado.rondaTerminada) {
@@ -190,6 +223,9 @@ function empezarGiro(): void {
             ? 'La ronda terminó antes: se acabaron los participantes.'
             : 'Ronda cerrada. Presiona "Girar la ruleta" para abrir una nueva.',
         );
+        // La próxima ronda (con el pozo que quede) recién arranca en el
+        // siguiente giro exitoso — ahí se reporta un nuevo "ronda_iniciada".
+        rondaReportada = false;
       }
     },
   });
@@ -381,6 +417,7 @@ btnBorrarTodo.addEventListener('click', () => {
   panel.establecerTextoParticipantes('');
   procesarTextoParticipantes('');
   estado = crearRonda(estado.config, [], null);
+  rondaReportada = false;
   historial.renderizar(estado.historial);
   actualizarPozoYDibujo();
 

@@ -13,6 +13,7 @@ aviso deben validarse con quien vea lo legal.
 | Correo | Personal común | Memoria del navegador |
 | Teléfono | Personal común | Memoria del navegador |
 | Logo del organizador | No personal | Memoria del navegador |
+| Evento de uso (`ronda_iniciada`, `giro`: solo conteos, modalidad y fecha) | No personal — sin identificador de titular | `servidor-estadisticas/` (ver más abajo) |
 
 No hay datos sensibles, biométricos, de salud ni geolocalización. **Si en algún
 momento se agrega RUT, fecha de nacimiento o datos de menores de 14, esta tabla
@@ -20,12 +21,26 @@ cambia y hay que rehacer el análisis antes de escribir el código.**
 
 ## Por qué v1 está en una posición cómoda
 
-Todo el tratamiento ocurre en el navegador del organizador: la app no transmite
-ni almacena datos en servidores. El sitio es estático, sin cookies, sin analytics
-y sin terceros. Eso resuelve de entrada seguridad en tránsito, transferencia
-internacional y buena parte del deber de seguridad. **La regla es no romper eso**:
+Todo el tratamiento de **participantes** ocurre en el navegador del organizador:
+sus nombres, correos y teléfonos nunca salen de ahí. El sitio sigue siendo
+estático, sin cookies, sin analytics de terceros. Eso resuelve de entrada
+seguridad en tránsito, transferencia internacional y buena parte del deber de
+seguridad para los datos que sí son personales. **La regla es no romper eso**:
 cualquier tarea que agregue una llamada de red con datos de participantes deja de
 ser una decisión técnica y pasa a requerir base de licitud y aviso.
+
+**Excepción explícita, agregada después de v1:** la app manda al
+`servidor-estadisticas/` (ver `docs/DEPLOY.md`) un conteo anónimo cada vez que
+se abre una ronda o se gira la ruleta — `{ tipo, participantes: number, modo,
+repeticion, fecha }`, calculado por el servidor. **Nunca** viaja nombre, correo,
+teléfono ni ningún identificador de una persona. Como no hay titular
+identificable en ese payload, no es un dato personal y no activa las
+obligaciones de la ley — pero el servidor tiene que sostener esa garantía por su
+cuenta (ver regla 2 más abajo): no debe loguear la IP de origen en ningún
+archivo persistente, porque ahí sí aparecería un dato personal por la puerta de
+atrás. Esto es una decisión distinta y de mucho menor riesgo que la "Fase 5"
+descrita al final de este documento (que sí trataría datos de participantes en
+un servidor) — no hay que confundir los dos análisis.
 
 ## Reglas que el código debe cumplir
 
@@ -35,7 +50,11 @@ ser una decisión técnica y pasa a requerir base de licitud y aviso.
    defecto**. El resto de campos de una línea importada simplemente se descarta.
 2. **Sin fugas por el costado (art. 14 quinquies).** Nada de nombres, correos ni
    teléfonos en `console.log`, en la URL, en el `title` de la pestaña, ni en
-   mensajes de error. En producción el logging queda apagado.
+   mensajes de error. En producción el logging queda apagado. Esto también
+   aplica al `servidor-estadisticas/`: no persiste la IP de origen de las
+   solicitudes en ningún archivo ni log — los contadores para el límite de
+   tasa y el bloqueo de intentos fallidos viven solo en memoria y se
+   descartan.
 3. **Borrado real (art. 7°).** "Borrar todos los datos" limpia `localStorage`,
    el estado en memoria y el historial. Sin borrado lógico oculto.
 4. **Portabilidad (art. 9°).** La exportación va en CSV y JSON, formatos

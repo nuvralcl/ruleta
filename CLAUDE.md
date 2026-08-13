@@ -47,6 +47,16 @@ docs/                   ESPECIFICACION.md  PLAN.md  PRIVACIDAD.md
 (el azar entra por parámetro). Es lo que hace posible testear la equidad del
 sorteo sin navegador.
 
+## Segundo servicio: `servidor-estadisticas/`
+
+Es un backend chico y **aparte** (Node + TypeScript, cero dependencias de
+runtime), no toca `src/` ni el build de Vite. Recibe conteos anónimos de uso
+(`ronda_iniciada`, `giro` — nunca datos de participantes) y expone un
+`/dashboard` con contraseña (Basic Auth). Se despliega como otra app en
+Dokploy, dominio y build independientes — ver `docs/DEPLOY.md`. Antes de
+tocarlo, lee `docs/PRIVACIDAD.md` (sección sobre este servicio): la regla de
+oro ahí es que nunca debe pasar a loguear IPs ni ningún dato de participantes.
+
 ## Convenciones
 
 - **Idioma:** código, comentarios, commits y UI en español. Sin `Winner`,
