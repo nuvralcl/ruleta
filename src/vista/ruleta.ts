@@ -94,6 +94,15 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
     dibujar(pozoActual);
   }
 
+  // ResizeObserver dispara apenas el canvas tiene un tamaño real (incluido el
+  // primer layout, que puede no estar listo todavía cuando corre este
+  // módulo) y en cada cambio posterior — cubre resize de ventana, modo
+  // proyección, etc. sin depender de eventos manuales ni de
+  // requestAnimationFrame (que no corre si la pestaña no está visible).
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(() => ajustarTamano()).observe(canvas);
+  }
+
   function dibujarAnillosDisco(contexto: CanvasRenderingContext2D, cx: number, cy: number, radio: number): void {
     const anillos = 10;
     contexto.save();
@@ -199,8 +208,12 @@ export function crearRuleta(canvas: HTMLCanvasElement) {
     const h = canvas.height;
     const cx = w / 2;
     const cy = h / 2;
-    const radio = Math.min(w, h) / 2 - 4;
+    const radio = Math.max(0, Math.min(w, h) / 2 - 4);
     ctx.clearRect(0, 0, w, h);
+
+    // El canvas todavía no tiene un tamaño real (layout sin resolver aún,
+    // o ventana reducida al mínimo): no hay nada útil que dibujar.
+    if (radio <= 0) return;
 
     if (pozo.length === 0) {
       ctx.beginPath();

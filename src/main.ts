@@ -391,7 +391,10 @@ refrescarListasGuardadas();
 
 panel.establecerTextoParticipantes(PARTICIPANTES_EJEMPLO);
 if (parseoInicial.duplicados > 0) panel.mostrarAvisoDuplicados(parseoInicial.duplicados);
-ruleta.ajustarTamano();
+
+// No hace falta medir el canvas a mano acá: el ResizeObserver de
+// crearRuleta ya dispara ajustarTamano() apenas el layout esté listo,
+// incluida la primera vez.
 actualizarPozoYDibujo();
 
 let actaActual: Acta | null = null;
